@@ -1,0 +1,40 @@
+@import "./mixins.less";
+
+.bk-root {
+  box-sizing: border-box;
+
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+
+  *, *:before, *:after {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    background-image: none;
+  }
+
+  @import "./main.less";
+  @import "./icons.less";
+  @import "./logo.less";
+  @import "./toolbar.less";
+  @import "./tooltips.less";
+
+  // Properties of bk-root itself
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 10pt; // 13px/0.8em
+  position: relative;
+  width: auto;
+  height: auto;
+}
+
+/* notebook specific tweaks so no black outline and matching padding
+/* can't be wrapped inside bk-root. here are the offending jupyter lines:
+/* https://github.com/jupyter/notebook/blob/master/notebook/static/notebook/less/renderedhtml.less#L59-L76 */
+.rendered_html .bk-root .bk-tooltip table,
+.rendered_html .bk-root .bk-tooltip tr,
+.rendered_html .bk-root .bk-tooltip th,
+.rendered_html .bk-root .bk-tooltip td {
+  border: none;
+  padding: 1px;
+}

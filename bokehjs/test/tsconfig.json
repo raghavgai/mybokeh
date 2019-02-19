@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "alwaysStrict": true,
+    "noErrorTruncation": true,
+    "noEmitOnError": false,
+    "declaration": false,
+    "sourceMap": true,
+    "importHelpers": false,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2015",
+    "lib": ["es2015", "dom"],
+    "types": ["node", "mocha"],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["../build/js/tree/*", "../build/js/types/*"]
+    },
+    "outDir": "../build/test"
+  },
+  "include": ["./**/*.ts"]
+}

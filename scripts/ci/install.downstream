@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e # exit on error
+set -x # echo commands
+
+conda install -n testenv --yes --quiet distributed
+conda install -n testenv --yes --quiet -c pyviz/label/dev holoviews nose
