@@ -30,14 +30,14 @@ purpose of the Bokeh Server.**
 
 ----
 
-The simple example below, embedded from `demo.bokeh.org`_, illustrates
+The simple example below, embedded from `demo.bokehplots.com`_, illustrates
 this.
 
 .. raw:: html
 
     <div>
     <iframe
-        src="https://demo.bokeh.org/sliders"
+        src="https://demo.bokehplots.com/apps/sliders/#"
         frameborder="0"
         style="overflow:hidden;height:400px;width: 90%;
 
@@ -872,7 +872,8 @@ similar to this:
 
 Be careful that the file permissions of the Bokeh resources are accessible to
 whatever user account is running the Nginx server process. Alternatively, you can copy the resources
-to a global static directory during your deployment process.
+to a global static directory during your deployment process. See
+:ref:`userguide_server_deployment_automation` for a demonstration of this.
 
 Apache
 ''''''
@@ -1166,6 +1167,30 @@ see notes in the `Tornado docs`_.
 
 .. _Tornado docs: http://www.tornadoweb.org/en/stable/tcpserver.html#tornado.tcpserver.TCPServer.start
 
+.. _userguide_server_deployment_automation:
+
+A Full Example with Automation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To deploy the demo site at http://demo.bokehplots.com we combine all of the
+above techniques. Additionally, we used `SaltStack`_ to automate many aspects
+of the deployment.
+
+.. note::
+    Other devops automation tools include `Puppet`_, `Ansible`_, and `Chef`_.
+    We would like to provide specific guidance where ever we can, so if you
+    have experience with these tools and would be interested in contributing
+    your knowledge, please `contact us on the mailing list`_.
+
+You can see all the code for deploying the site at the public GitHub
+repository here:
+
+https://github.com/bokeh/demo.bokehplots.com
+
+You can modify or deploy your own version of this site on an Amazon Linux
+instance by simply running the ``deploy.sh`` script at the top level. With
+minor modifications, this machinery should work on many linux variants.
+
 Further Reading
 ---------------
 Now that you are familiar with the concepts of :ref:`userguide_server`, you
@@ -1175,8 +1200,10 @@ in :ref:`devguide_server`
 .. _Ansible: http://www.ansible.com
 .. _Chef: https://www.chef.io/chef/
 .. _contact us on the mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
-.. _demo.bokeh.org: https://demo.bokeh.org
+.. _demo.bokehplots.com: https://demo.bokehplots.com
 .. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
+.. _Puppet: https://puppetlabs.com
+.. _SaltStack: http://saltstack.com
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
 .. _Supervisor: http://supervisord.org
 .. _Supervisor configuration documentation: http://supervisord.org/configuration.html

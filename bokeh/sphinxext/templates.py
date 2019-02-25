@@ -4,9 +4,6 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -21,10 +18,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import dirname, join
 
 # External imports
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader
 
 # Bokeh imports
 
@@ -51,9 +47,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-_templates_path = join(dirname(__file__), '_templates')
-
-_env = Environment(loader=FileSystemLoader(_templates_path))
+_env = Environment(loader=PackageLoader('bokeh.sphinxext', '_templates'))
 
 #-----------------------------------------------------------------------------
 # General API
@@ -70,8 +64,7 @@ COLOR_DETAIL = _env.get_template("color_detail.html")
 
 ENUM_DETAIL = _env.get_template("enum_detail.rst")
 
-GALLERY_PAGE   = _env.get_template("gallery_page.rst")
-GALLERY_DETAIL = _env.get_template("gallery_detail.rst")
+GALLERY_PAGE = _env.get_template("gallery_page.rst")
 
 JINJA_DETAIL = _env.get_template("jinja_detail.rst")
 

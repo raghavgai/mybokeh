@@ -4,23 +4,20 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Automatically document Bokeh Jinja2 templates.
+""" Automatically document Bokeh Jinja2 templates.
 
-This directive takes the module path to an attribute name that defines a Jinja2
-template:
+The ``bokeh-jinja`` directive generates useful type information
+for the property attribute, including cross links to the relevant
+property types. Additionally, any per-attribute docstrings are
+also displayed.
 
-.. code-block:: rest
+This directive takes the path to an attribute on a Bokeh
+model class as an argument::
 
-    .. bokeh-jinja:: bokeh.core.templates.FILE
+    .. bokeh-jinja:: bokeh.core.templates.FOO
 
-Any template parameters will be displayed and the template source code will
-be rendered in a collapsible code block. For example, the usage above will
-generate the following output:
 
-    .. bokeh-jinja:: bokeh.core.templates.FILE
-        :noindex:
-
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -51,6 +48,8 @@ from .templates import JINJA_DETAIL
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE|re.DOTALL)
+
 __all__ = (
     'BokehJinjaDirective',
     'setup',
@@ -68,11 +67,9 @@ class BokehJinjaDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
-    option_spec = {
-        'noindex': lambda x: True, # directives.flag weirdly returns None
-    }
 
     def run(self):
+
         template_path = self.arguments[0]
         module_path, template_name = template_path.rsplit('.', 1)
 
@@ -86,7 +83,7 @@ class BokehJinjaDirective(BokehDirective):
             SphinxError("Unable to find Bokeh template: %s" % template_path)
 
         template_text = open(template.filename).read()
-        m = _DOCPAT.match(template_text)
+        m = DOCPAT.match(template_text)
         if m: doc = m.group(1)
         else: doc = None
 
@@ -95,23 +92,19 @@ class BokehJinjaDirective(BokehDirective):
             name=template_name,
             module=module_path,
             objrepr=repr(template),
-            noindex=self.options.get('noindex', False),
             doc="" if doc is None else textwrap.dedent(doc),
             filename=filename,
-            template_text=_DOCPAT.sub("", template_text),
+            template_text=DOCPAT.sub("", template_text),
         )
 
         return self._parse(rst_text, "<bokeh-jinja>")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
     app.add_directive_to_domain('py', 'bokeh-jinja', BokehJinjaDirective)
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-_DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE|re.DOTALL)
 
 #-----------------------------------------------------------------------------
 # Code

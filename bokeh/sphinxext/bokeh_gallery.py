@@ -22,16 +22,15 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-import os
-from os.path import abspath, dirname, exists, isdir, isfile, getmtime, join
+from os.path import abspath, dirname, join
 
 # External imports
 from sphinx.errors import SphinxError
-from sphinx.util import ensuredir, status_iterator
+from sphinx.util import copyfile, ensuredir, status_iterator
 
 # Bokeh imports
 from .bokeh_directive import BokehDirective
-from .templates import GALLERY_DETAIL, GALLERY_PAGE
+from .templates import GALLERY_PAGE
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,6 +38,7 @@ from .templates import GALLERY_DETAIL, GALLERY_PAGE
 
 __all__ = (
     'BokehGalleryDirective',
+    'env_updated_handler',
     'setup',
 )
 
@@ -57,74 +57,64 @@ class BokehGalleryDirective(BokehDirective):
 
     def run(self):
         env = self.state.document.settings.env
+        app = env.app
+
+        # workaround (used below) for https://github.com/sphinx-doc/sphinx/issues/3924
+        current_docname = env.docname
 
         docdir = dirname(env.doc2path(env.docname))
 
-        gallery_file = join(docdir, self.arguments[0])
+        specpath = join(docdir, self.arguments[0])
 
-        gallery_dir = join(dirname(dirname(gallery_file)), "gallery")
-        if not exists(gallery_dir) and isdir(gallery_dir):
-            raise SphinxError("gallery dir %r missing for gallery file %r" % (gallery_dir, gallery_file))
+        dest_dir = join(dirname(specpath), "gallery")
+        ensuredir(dest_dir)
 
-        spec = json.load(open(gallery_file))
-        names = [detail['name']for detail in spec['details']]
+        env.note_dependency(specpath)
+        spec = json.load(open(specpath))
+        details = spec['details']
 
+        details_iter = status_iterator(details,
+                                       'copying gallery files... ',
+                                       'brown',
+                                       len(details),
+                                       stringify_func=lambda x: x['name'] + ".py")
+
+        env.gallery_updated = []
+        for detail in details_iter:
+            src_path = abspath(join("..", detail['path']))
+            dest_path = join(dest_dir, detail['name'] + ".py")
+
+            # sphinx pickled env works only with forward slash
+            docname = join(env.app.config.bokeh_gallery_dir, detail['name']).replace("\\","/")
+
+            try:
+                copyfile(src_path, dest_path)
+            except OSError as e:
+                raise SphinxError('cannot copy gallery file %r, reason: %s' % (src_path, e))
+
+            try:
+                env.clear_doc(docname)
+                env.read_doc(docname, app=app)
+                env.gallery_updated.append(docname)
+            except Exception as e:
+                raise SphinxError('failed to read gallery doc %r, reason: %s' % (docname, e))
+
+        names = [detail['name']for detail in details]
         rst_text = GALLERY_PAGE.render(names=names)
+
+        # workaround for https://github.com/sphinx-doc/sphinx/issues/3924
+        env.temp_data['docname'] = current_docname
 
         return self._parse(rst_text, "<bokeh-gallery>")
 
-def config_inited_handler(app, config):
-    gallery_dir = join(app.srcdir, config.bokeh_gallery_dir)
-    gallery_file = gallery_dir + ".json"
-
-    if not exists(gallery_file) and isfile(gallery_file):
-        raise SphinxError("could not find gallery file %r for configured gallery dir %r" % (gallery_file, gallery_dir))
-
-    gallery_file_mtime = getmtime(gallery_file)
-
-    ensuredir(gallery_dir)
-
-    # we will remove each file we process from this set and see if anything is
-    # left at the end (and remove it in that case)
-    extras = set(os.listdir(gallery_dir))
-
-    # app.env.note_dependency(specpath)
-    spec = json.load(open(gallery_file))
-    details = spec['details']
-
-    names = set(x['name'] for x in details)
-    if len(names) < len(details):
-        raise SphinxError("gallery file %r has duplicate names" % gallery_file)
-
-    details_iter = status_iterator(details,
-                                   'creating gallery file entries... ',
-                                   'brown',
-                                   len(details),
-                                   app.verbosity,
-                                   stringify_func=lambda x: x['name'] + ".rst")
-
-    for detail in details_iter:
-        detail_file_name = detail['name'] + ".rst"
-        detail_file_path = join(gallery_dir, detail_file_name)
-
-        if detail_file_path in extras:
-            extras.remove(detail_file_path)
-
-        # if the gallery detail file is newer than the gallery file, assume it is up to date
-        if exists(detail_file_path) and getmtime(detail_file_path) > gallery_file_mtime:
-            continue
-
-        with open(detail_file_path, "w") as f:
-            source_path = abspath(join(app.srcdir, "..", "..", detail['path']))
-            f.write(GALLERY_DETAIL.render(filename=detail['name']+'.py', source_path=source_path))
-
-    for extra_file in extras:
-        os.remove(join(gallery_dir, extra_file))
+def env_updated_handler(app, env):
+    # this is to make sure the files that were copied and read by hand
+    # in by the directive get marked updated and written out appropriately
+    return getattr(env, 'gallery_updated', [])
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
     app.add_config_value('bokeh_gallery_dir', join("docs", "gallery"), 'html')
-    app.connect('config-inited', config_inited_handler)
+    app.connect('env-updated', env_updated_handler)
     app.add_directive('bokeh-gallery', BokehGalleryDirective)
 
 #-----------------------------------------------------------------------------

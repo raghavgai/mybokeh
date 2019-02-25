@@ -9,7 +9,7 @@
 This directive collect all the release notes files in the ``docs/releases``
 subdirectory, and includes them in *reverse version order*. Typical usage:
 
-.. code-block:: rest
+.. code-block:: rst
 
     :tocdepth: 1
 
@@ -83,7 +83,6 @@ class BokehReleases(BokehDirective):
         return rst
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
     app.add_directive('bokeh-releases', BokehReleases)
 
 #-----------------------------------------------------------------------------

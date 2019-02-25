@@ -4,16 +4,15 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Thoroughly document Bokeh model classes.
+""" Thoroughly document Bokeh model classes.
 
-The ``bokeh-model`` directive will automatically document all the attributes
-(including Bokeh properties) of a Bokeh Model subclass. A JSON prototype showing
-all the possible JSON fields will also be generated.
+The ``bokeh-model`` directive will automatically document
+all the attributes (including Bokeh properties) of a Bokeh
+model class. A JSON prototype showing all the possible
+JSON fields will also be generated.
 
-This directive takes the name of a Bokeh model class as an argument and its
-module as an option:
-
-.. code-block:: rest
+This directive takes the path to a Bokeh model class as an
+argument::
 
     .. bokeh-model:: Foo
         :module: bokeh.sphinxext.sample
@@ -21,12 +20,10 @@ module as an option:
 Examples
 --------
 
-For the following definition of ``bokeh.sphinxext.sample.Foo``:
-
-.. code-block:: python
+For the following definition of ``bokeh.sphinxext.sample.Foo``::
 
     class Foo(Model):
-        """ This is a Foo model. """
+        ''' This is a Foo model. '''
         index = Either(Auto, Enum('abc', 'def', 'xzy'), help="doc for index")
         value = Tuple(Float, Float, help="doc for value")
 
@@ -36,10 +33,7 @@ the above usage yields the output:
     .. bokeh-model:: Foo
         :module: bokeh.sphinxext.sample
 
-The ``bokeh-model`` direction may be used explicitly, but it can also be used
-in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
-
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -88,7 +82,8 @@ class BokehModelDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
-    optional_arguments = 1
+    optional_arguments = 2
+
     option_spec = {
         'module': unchanged
     }
@@ -133,7 +128,6 @@ class BokehModelDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-model>")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
     app.add_directive_to_domain('py', 'bokeh-model', BokehModelDirective)
 
 #-----------------------------------------------------------------------------
