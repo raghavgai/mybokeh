@@ -35,8 +35,8 @@ export abstract class LayoutDOMView extends DOMView {
 
   layout: Layoutable
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.el.style.position = this.is_root ? "relative" : "absolute"
     this._child_views = {}
     this.build_child_views()
@@ -168,8 +168,7 @@ export abstract class LayoutDOMView extends DOMView {
   rebuild(): void {
     this.build_child_views()
     this.render()
-    this.root.update_layout()
-    this.root.compute_layout()
+    this.invalidate_layout()
   }
 
   compute_layout(): void {
