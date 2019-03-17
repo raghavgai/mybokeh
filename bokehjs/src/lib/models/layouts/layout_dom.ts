@@ -78,7 +78,7 @@ export abstract class LayoutDOMView extends DOMView {
       p.margin,
       p.width_policy, p.height_policy, p.sizing_mode,
       p.aspect_ratio,
-      p.visible, p.disabled,
+      p.visible,
       p.background, p.css_classes,
     ], () => this.invalidate_layout())
   }
@@ -291,8 +291,10 @@ export abstract class LayoutDOMView extends DOMView {
       }
     })()
 
+    const {visible} = this.model
+
     return {
-      width_policy, height_policy, aspect, margin,
+      width_policy, height_policy, aspect, margin, visible,
       min_width: min_width!, width: width!, max_width: max_width!,
       min_height: min_height!, height: height!, max_height: max_height!,
     }
