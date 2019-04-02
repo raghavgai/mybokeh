@@ -310,7 +310,7 @@
     - #7807 [component: examples] [regression] Allow customjs args to accept basic python types
     - #7819 [component: bokehjs] [performance] [regression] Rendering occurs on mouse move when hover tools is enabled
     - #7836 [component: docs] Minor fix in docs
-    - #7840 [component: docs] Html formatter has a small typo
+    - #7840 [component: docs] Html formatter has a small typo error
     - #7849 [component: examples] Ionrangeslider example fails when adding more than one slider
     - #7868 [component: bokehjs] [geo] The plot disappears when the max_zoom value of wmtstilesource is set and this value is reached
     - #7885 [regression] Exporting datatable to png broken
