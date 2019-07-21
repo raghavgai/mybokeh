@@ -3,7 +3,8 @@ import {input, textarea, select, option, Keys} from "core/dom"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
-import {DTINDEX_NAME, Item} from "./data_table"
+import {DTINDEX_NAME} from "./data_table"
+import {Item} from "./table_column"
 
 import {bk_cell_editor} from "styles/widgets/tables"
 
@@ -40,7 +41,7 @@ export abstract class CellEditorView extends DOMView {
 
   render(): void {
     super.render()
-    this.args.container.appendChild(this.el)
+    this.args.container.append(this.el)
     this.el.appendChild(this.inputEl)
     this.renderEditor()
     this.disableNavigation()

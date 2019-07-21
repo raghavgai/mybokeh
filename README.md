@@ -1,7 +1,8 @@
-Bokeh
-=====
+<a href="https://bokeh.org">
+  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" width="150" alt="Bokeh logotype" />
+</a>
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
+*Bokeh is a fiscally sponsored project of [NumFOCUS](https://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
 
 <table>
 
@@ -17,7 +18,7 @@ Bokeh
   <td>Conda</td>
   <td>
     <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
-    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg"
+    <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg"
          alt="Conda downloads per month" />
     </a>
   </td>
@@ -34,8 +35,10 @@ Bokeh
 
   <td>PyPI</td>
   <td>
-    <img src="https://badges.bokeh.org/pip-downloads-30-day.svg"
+    <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
+    <img src="https://img.shields.io/pypi/dm/bokeh.svg"
          alt="PyPI downloads per month" />
+    </a>
   </td>
 </tr>
 
@@ -70,17 +73,17 @@ Bokeh
     </a>
   </td>
 
-  <td>Gitter</td>
+  <td>Support</td>
   <td>
-    <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
-    <img src="https://badges.gitter.im/bokeh/bokeh.svg"
-         alt="Chat on the Bokeh Gitter channel" />
+    <a href="https://discourse.bokeh.org">
+    <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg"
+         alt="Community Support on discourse.bokeh.org" />
     </a>
   </td>
 </tr>
 
 <tr>
-  <td>Static Analyis</td>
+  <td>Static Analysis</td>
   <td>
     <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
     <img src="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master"
@@ -268,7 +271,7 @@ Once Bokeh is installed, check out the [Getting Started](https://bokeh.pydata.or
 
 Documentation
 -------------
-Visit the [Bokeh site](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [Bokeh Front Page](https://bokeh.org) for information and [full documentation](https://bokeh.pydata.org), or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Contribute to Bokeh
 -------------------
