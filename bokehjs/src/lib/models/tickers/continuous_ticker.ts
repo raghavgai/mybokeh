@@ -34,7 +34,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ContinuousTicker(): void {
     this.define<ContinuousTicker.Props>({
       num_minor_ticks:   [ p.Number, 5 ],
       desired_num_ticks: [ p.Number, 6 ],
@@ -70,9 +70,9 @@ export abstract class ContinuousTicker extends Ticker<number> {
       factors = []
     else
       factors = range(start_factor, end_factor + 1)
-    const ticks =
-      factors.map((factor) => factor*interval)
-             .filter((tick) => data_low <= tick && tick <= data_high)
+    const ticks = factors
+      .map((factor) => factor*interval)
+      .filter((tick) => data_low <= tick && tick <= data_high)
     const num_minor_ticks = this.num_minor_ticks
     const minor_ticks = []
     if (num_minor_ticks > 0 && ticks.length > 0) {
@@ -117,4 +117,3 @@ export abstract class ContinuousTicker extends Ticker<number> {
     return data_range / desired_n_ticks
   }
 }
-ContinuousTicker.initClass()

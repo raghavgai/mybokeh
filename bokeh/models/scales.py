@@ -11,18 +11,12 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -50,19 +44,23 @@ class Scale(Transform):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block:: coffeescript
+    .. code-block
 
-        compute: (x) ->
-            # compute the transform of a single value
+        compute(x: number): number {
+            # compute and return the transform of a single value
+        }
 
-        v_compute: (xs) ->
-            # compute the transform of an array of values
+        v_compute(xs: Arrayable<number>): Arrayable<number> {
+            # compute and return the transform of an array of values
+        }
 
-        invert: (xprime) ->
-            # compute the inverse transform of a single value
+        invert(sx: number): number {
+            # compute and return the inverse transform of a single value
+        }
 
-        v_invert: (xprimes) ->
-            # compute the inverse transform of an array of values
+        v_invert(sxs: Arrayable<number>): Arrayable<number> {
+            # compute and return the inverse transform of an array of values
+        }
 
     '''
     pass

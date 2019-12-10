@@ -47,9 +47,7 @@ For all cases, it's required to explicitly add a Bokeh layout to
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -60,10 +58,8 @@ log = logging.getLogger(__name__)
 import io
 import sys
 
-# External imports
-
 # Bokeh imports
-from ...io.export import get_screenshot_as_png, create_webdriver, terminate_webdriver
+from ...io.export import create_webdriver, get_screenshot_as_png, terminate_webdriver
 from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
 
@@ -118,7 +114,7 @@ class PNG(FileOutputSubcommand):
         '''
         self.driver = create_webdriver()
         try:
-            super(PNG, self).invoke(args)
+            super().invoke(args)
         finally:
             terminate_webdriver(self.driver)
 

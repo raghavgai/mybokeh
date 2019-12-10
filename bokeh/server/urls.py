@@ -45,26 +45,20 @@ built-in ``HTTPServer``.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from .views.ws import WSHandler
-from .views.root_handler import RootHandler
+from .views.autoload_js_handler import AutoloadJsHandler
 from .views.doc_handler import DocHandler
 from .views.metadata_handler import MetadataHandler
+from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
-from .views.autoload_js_handler import AutoloadJsHandler
+from .views.ws import WSHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants

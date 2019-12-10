@@ -11,28 +11,42 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from ..core.enums import Align, SizingMode, SizingPolicy, Location
+from ..core.enums import Align, Location, SizingMode, SizingPolicy
 from ..core.has_props import abstract
-from ..core.properties import (Bool, Auto, Enum, Int, NonNegativeInt, Float,
-    Instance, List, Seq, Tuple, Dict, String, Either, Struct, Color)
-from ..core.validation import warning, error
-from ..core.validation.warnings import (BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT,
-    FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY)
-from ..core.validation.errors import MIN_PREFERRED_MAX_WIDTH, MIN_PREFERRED_MAX_HEIGHT
+from ..core.properties import (
+    Auto,
+    Bool,
+    Color,
+    Dict,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    Int,
+    List,
+    NonNegativeInt,
+    Seq,
+    String,
+    Struct,
+    Tuple,
+)
+from ..core.validation import error, warning
+from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH
+from ..core.validation.warnings import (
+    BOTH_CHILD_AND_ROOT,
+    EMPTY_LAYOUT,
+    FIXED_HEIGHT_POLICY,
+    FIXED_SIZING_MODE,
+    FIXED_WIDTH_POLICY,
+)
 from ..model import Model
 from .callbacks import Callback
 
@@ -46,8 +60,10 @@ __all__ = (
     'GridBox',
     'HTMLBox',
     'LayoutDOM',
+    'Panel',
     'Row',
     'Spacer',
+    'Tabs',
     'WidgetBox',
 )
 
@@ -148,7 +164,7 @@ class LayoutDOM(Model):
 
     ``"fit"``
         Use component's preferred height (if set) and allow to fit into the available
-        vertical space withing the minimum and maximum height bounds (if set). Component's
+        vertical space within the minimum and maximum height bounds (if set). Component's
         height neither will be aggressively minimized nor maximized.
 
     ``"min"``
@@ -350,7 +366,7 @@ class Box(LayoutDOM):
         elif len(args) > 0:
             kwargs["children"] = list(args)
 
-        super(Box, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):
@@ -410,11 +426,6 @@ class Column(Box):
 
     """)
 
-class WidgetBox(Column):
-    ''' Create a column of bokeh widgets with predefined styling.
-
-    '''
-
 class Panel(Model):
     ''' A single-widget container with title bar and controls.
 
@@ -469,3 +480,15 @@ class Tabs(LayoutDOM):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+# TODO (bev) deprecation: 3.0
+class WidgetBox(Column):
+    ''' Create a column of bokeh widgets with predefined styling.
+
+    WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
+
+    '''
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        from ..util.deprecation import deprecated
+        deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")

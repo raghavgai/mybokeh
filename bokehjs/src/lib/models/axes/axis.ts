@@ -214,7 +214,7 @@ export class AxisView extends GuideRendererView {
     let xoff, yoff: number
 
     if (units == "screen") {
-       [sxs, sys] = coords
+      [sxs, sys] = coords
       ;[xoff, yoff] = [0, 0]
     } else {
       const [dxs, dys] = coords
@@ -382,7 +382,7 @@ export class AxisView extends GuideRendererView {
   }
 
   get computed_bounds(): [number, number] {
-    const [range,] = this.ranges
+    const [range] = this.ranges
 
     const user_bounds = this.model.bounds // XXX: ? 'auto'
     const range_bounds: [number, number] = [range.min, range.max]
@@ -412,7 +412,7 @@ export class AxisView extends GuideRendererView {
   get rule_coords(): Coords {
     const i = this.dimension
     const j = (i + 1) % 2
-    const [range,] = this.ranges
+    const [range] = this.ranges
     const [start, end] = this.computed_bounds
 
     const xs: number[] = new Array(2)
@@ -433,7 +433,7 @@ export class AxisView extends GuideRendererView {
   get tick_coords(): TickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
-    const [range,] = this.ranges
+    const [range] = this.ranges
     const [start, end] = this.computed_bounds
 
     const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
@@ -549,7 +549,7 @@ export class Axis extends GuideRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Axis(): void {
     this.prototype.default_view = AxisView
 
     this.mixins([
@@ -593,4 +593,3 @@ export class Axis extends GuideRenderer {
     })
   }
 }
-Axis.initClass()

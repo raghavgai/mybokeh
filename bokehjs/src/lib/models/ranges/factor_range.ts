@@ -5,6 +5,7 @@ import {Arrayable} from "core/types"
 import {map} from "core/util/arrayable"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
+import {unreachable} from "core/util/assert"
 
 export type L1Factor = string
 export type L2Factor = [string, string]
@@ -98,7 +99,7 @@ export function map_three_levels(factors: L3Factor[],
     for (const f1 of submids_order)
       mids_order.push([f0, f1])
     total_subpad += subpad
-    const subtot = sum(tops[f0].map(([f1,]) => submap[f1].value))
+    const subtot = sum(tops[f0].map(([f1]) => submap[f1].value))
     mapping[f0] = {value: subtot/n, mapping: submap}
     suboffset += n + outer_pad + subpad
   }
@@ -135,7 +136,7 @@ export class FactorRange extends Range {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_FactorRange(): void {
     this.define<FactorRange.Props>({
       factors:             [ p.Array,        []        ],
       factor_padding:      [ p.Number,       0         ],
@@ -205,7 +206,7 @@ export class FactorRange extends Range {
       }
       return m[x[0]].mapping[x[1]].mapping[x[2]].value
     } else
-      throw new Error("unreachable code")
+      unreachable()
   }
 
   // convert a string factor into a synthetic coordinate
@@ -264,4 +265,3 @@ export class FactorRange extends Range {
       this.setv({bounds: [start, end]}, {silent: true})
   }
 }
-FactorRange.initClass()

@@ -20,26 +20,25 @@ configured:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from six import class_types
-from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, ModuleLevelDocumenter
+from sphinx.ext.autodoc import (
+    AttributeDocumenter,
+    ClassDocumenter,
+    ModuleLevelDocumenter,
+)
 
 # Bokeh imports
 from bokeh.colors.color import Color
-from bokeh.model import Model
 from bokeh.core.enums import Enumeration
 from bokeh.core.property.descriptors import PropertyDescriptor
+from bokeh.model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -102,7 +101,7 @@ class ModelDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, class_types) and issubclass(member, Model)
+        return isinstance(member, type) and issubclass(member, Model)
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''

@@ -12,18 +12,12 @@ documents.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ..core.has_props import HasProps
@@ -131,9 +125,9 @@ def references_json(references):
 
     references_json = []
     for r in references:
-        ref = r.ref
-        ref['attributes'] = r._to_json_like(include_defaults=False)
-        references_json.append(ref)
+        struct = r.struct
+        struct['attributes'] = r._to_json_like(include_defaults=False)
+        references_json.append(struct)
 
     return references_json
 

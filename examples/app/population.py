@@ -30,11 +30,11 @@ pyramid = figure(plot_width=600, plot_height=500, toolbar_location=None, y_range
                  title="Population Breakdown by Age Group and Gender",
                  x_axis_label="Population (Millions)",y_axis_label="Age Group")
 pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
-             source=ages, legend="Sex", line_color="white",
+             source=ages, legend_field="Sex", line_color="white",
              fill_color=factor_cmap('Sex', palette=["#3B8686", "#CFF09E"], factors=["Male", "Female"]))
 
 pyramid.ygrid.grid_line_color = None
-pyramid.xaxis[0].formatter = FuncTickFormatter(code="""
+pyramid.xaxis.formatter = FuncTickFormatter(code="""
     return (Math.abs(tick) / 1e6) + " M"
 """)
 
@@ -46,15 +46,15 @@ predicted = ColumnDataSource(data=dict(x=[], y=[]))
 population = figure(plot_width=600, plot_height=180, toolbar_location=None,
                     title="Total Population by Year",
                     x_axis_label="Year",y_axis_label="Population")
-population.line("x", "y", color="violet", line_width=2, source=known, legend="known")
-population.line("x", "y", color="violet", line_width=2, line_dash="dashed", source=predicted, legend="predicted")
+population.line("x", "y", color="violet", line_width=2, source=known, legend_label="known")
+population.line("x", "y", color="violet", line_width=2, line_dash="dashed", source=predicted, legend_label="predicted")
 
 population.xaxis.major_label_orientation = pi/4
 population.xgrid.grid_line_color = None
 population.legend.location = "center_right"
 population.x_range.end = 2150
 population.yaxis.minor_tick_line_color = None
-population.yaxis[0].formatter = FuncTickFormatter(code="""
+population.yaxis.formatter = FuncTickFormatter(code="""
     return (Math.abs(tick) / 1e9) + " B"
 """)
 

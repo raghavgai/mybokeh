@@ -12,9 +12,7 @@ Python source code.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -26,8 +24,6 @@ import os
 import sys
 import traceback
 from types import ModuleType
-
-# External imports
 
 # Bokeh imports
 from ...util.serialization import make_id
@@ -139,7 +135,7 @@ class CodeRunner(object):
             return None
 
         module_name = 'bk_script_' + make_id().replace('-', '')
-        module = ModuleType(str(module_name)) # str needed for py2.7
+        module = ModuleType(module_name)
         module.__dict__['__file__'] = os.path.abspath(self._path)
 
         return module
@@ -167,7 +163,7 @@ class CodeRunner(object):
 
         '''
         try:
-            # Simulate the sys.path behaviour decribed here:
+            # Simulate the sys.path behaviour described here:
             #
             # https://docs.python.org/2/library/sys.html#sys.path
             _cwd = os.getcwd()

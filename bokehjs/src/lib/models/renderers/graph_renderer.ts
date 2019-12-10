@@ -6,6 +6,7 @@ import {Scale} from "../scales/scale"
 import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
+import {Class} from "core/class"
 
 export class GraphRendererView extends DataRendererView {
   model: GraphRenderer
@@ -25,8 +26,13 @@ export class GraphRendererView extends DataRendererView {
     this.yscale = this.plot_view.frame.yscales.default
 
     this._renderer_views = {}
-    ;[this.node_view, this.edge_view] = build_views(this._renderer_views,
-      [this.model.node_renderer, this.model.edge_renderer], {parent: this.parent}) as [GlyphRendererView, GlyphRendererView]
+  }
+
+  async lazy_initialize(): Promise<void> {
+    [this.node_view, this.edge_view] = await build_views(this._renderer_views, [
+      this.model.node_renderer,
+      this.model.edge_renderer,
+    ], {parent: this.parent})
 
     this.set_data()
   }
@@ -99,12 +105,13 @@ export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends DataRenderer {
   properties: GraphRenderer.Props
+  default_view: Class<GraphRendererView>
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GraphRenderer(): void {
     this.prototype.default_view = GraphRendererView
 
     this.define<GraphRenderer.Props>({
@@ -120,4 +127,3 @@ export class GraphRenderer extends DataRenderer {
     return this.node_renderer.data_source.selection_manager
   }
 }
-GraphRenderer.initClass()

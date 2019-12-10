@@ -1,10 +1,11 @@
 import numpy as np
 
+from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, CustomJSTransform
 from bokeh.plotting import figure
-from bokeh.io import output_file, show
 from bokeh.sampledata.stocks import AAPL, GOOG
 from bokeh.transform import transform
+
 
 def datetime(x):
     return np.array(x, dtype=np.datetime64)
@@ -39,9 +40,9 @@ v_func = """
 normalize = CustomJSTransform(v_func=v_func)
 
 plot.line(x='aapl_date', y=transform('aapl_close', normalize), line_width=2,
-        color='#cf3c4d', alpha=0.6,legend="Apple", source=aapl_source)
+        color='#cf3c4d', alpha=0.6, legend_label="Apple", source=aapl_source)
 plot.line(x='goog_date', y=transform('goog_close', normalize), line_width=2,
-        color='#2f7bce', alpha=0.6, legend="Google", source=goog_source)
+        color='#2f7bce', alpha=0.6, legend_label="Google", source=goog_source)
 plot.legend.location='top_left'
 
 output_file("customjs_transform.html")

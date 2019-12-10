@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,12 +21,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 
-# External imports
-
 # Bokeh imports
 from ..application.handlers.code_runner import CodeRunner
 from ..application.handlers.handler import Handler
-from ..io.doc import set_curdoc, curdoc
+from ..io.doc import curdoc, set_curdoc
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -56,7 +52,7 @@ class ExampleHandler(Handler):
     _io_funcs = ['show', 'save']
 
     def __init__(self, source, filename):
-        super(ExampleHandler, self).__init__(self)
+        super().__init__(self)
         self._runner = CodeRunner(source, filename, [])
 
     def modify_document(self, doc):

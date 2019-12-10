@@ -43,9 +43,7 @@ In general, functions in this module convert values in the following way:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -63,7 +61,14 @@ import numpy as np
 # Bokeh imports
 from ..settings import settings
 from ..util.dependencies import import_optional
-from ..util.serialization import convert_datetime_type, convert_timedelta_type, is_datetime_type, is_timedelta_type, transform_series, transform_array
+from ..util.serialization import (
+    convert_datetime_type,
+    convert_timedelta_type,
+    is_datetime_type,
+    is_timedelta_type,
+    transform_array,
+    transform_series,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -145,10 +150,9 @@ def serialize_json(obj, pretty=None, indent=None, **kwargs):
     # these args to json.dumps are computed internally and should not be passed along
     for name in ['allow_nan', 'separators', 'sort_keys']:
         if name in kwargs:
-            raise ValueError("The value of %r is computed internally, overriding is not permissable." % name)
+            raise ValueError("The value of %r is computed internally, overriding is not permissible." % name)
 
-    if pretty is None:
-        pretty = settings.pretty(False)
+    pretty = settings.pretty(pretty)
 
     if pretty:
         separators=(",", ": ")
@@ -216,7 +220,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                     microseconds=obj.microseconds)
 
         else:
-            return super(BokehJSONEncoder, self).default(obj)
+            return super().default(obj)
 
     def default(self, obj):
         ''' The required ``default`` method for ``JSONEncoder`` subclasses.

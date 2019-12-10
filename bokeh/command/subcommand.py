@@ -12,9 +12,7 @@ line application.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,11 +21,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from abc import ABCMeta, abstractmethod
-
-# External imports
-
-# Bokeh imports
-from bokeh.util.future import with_metaclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +38,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Subcommand(with_metaclass(ABCMeta)):
+class Subcommand(metaclass=ABCMeta):
     ''' Abstract base class for subcommands
 
     Subclasses should implement an ``invoke(self, args)`` method that accepts

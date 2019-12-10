@@ -1,7 +1,5 @@
-from __future__ import absolute_import
-
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, Label, LinearAxis
+from bokeh.models import Label, LinearAxis, Plot, Range1d
 
 # Have to specify x/y range as labels aren't included in the plot area solver
 plot = Plot(plot_width=600, plot_height=600,

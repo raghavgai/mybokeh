@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -25,11 +23,8 @@ import io
 from os.path import abspath
 from warnings import warn
 
-# External imports
-
 # Bokeh imports
 from ..settings import settings
-from ..util.string import decode_utf8
 from .state import curstate
 from .util import default_filename
 
@@ -125,8 +120,8 @@ def _get_save_resources(state, resources, suppress_warning):
     if not suppress_warning:
         warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
 
-    from ..resources import CDN
-    return CDN
+    from ..resources import Resources
+    return Resources(mode=settings.resources())
 
 def _get_save_title(state, title, suppress_warning):
     if title is not None:
@@ -148,7 +143,7 @@ def _save_helper(obj, filename, resources, title, template):
     html = file_html(obj, resources, title=title, template=template)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
-        f.write(decode_utf8(html))
+        f.write(html)
 
 #-----------------------------------------------------------------------------
 # Code

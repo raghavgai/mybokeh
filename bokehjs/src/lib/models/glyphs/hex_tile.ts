@@ -87,7 +87,7 @@ export class HexTileView extends GlyphView {
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
   map_data(): void {
-     [this.sx, this.sy] = this.map_to_screen(this._x, this._y)
+    [this.sx, this.sy] = this.map_to_screen(this._x, this._y)
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
   }
 
@@ -229,7 +229,7 @@ export class HexTile extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_HexTile(): void {
     this.prototype.default_view = HexTileView
 
     this.coords([['r', 'q']])
@@ -243,4 +243,3 @@ export class HexTile extends Glyph {
     this.override({ line_color: null })
   }
 }
-HexTile.initClass()

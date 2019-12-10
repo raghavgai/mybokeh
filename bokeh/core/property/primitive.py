@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,9 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
-
-# External imports
-from six import string_types
 
 # Bokeh imports
 from .bases import PrimitiveProperty
@@ -237,7 +232,7 @@ class String(PrimitiveProperty):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     '''
-    _underlying_type = string_types
+    _underlying_type = (str,)
 
 #-----------------------------------------------------------------------------
 # Dev API

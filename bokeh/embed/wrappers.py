@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,8 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-
-# External imports
+from typing import Optional
 
 # Bokeh imports
 from ..core.templates import SCRIPT_TAG
@@ -46,19 +43,19 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def wrap_in_onload(code):
+def wrap_in_onload(code: str) -> str:
     '''
 
     '''
     return _ONLOAD % dict(code=indent(code, 4))
 
-def wrap_in_safely(code):
+def wrap_in_safely(code: str) -> str:
     '''
 
     '''
     return _SAFELY % dict(code=indent(code, 2))
 
-def wrap_in_script_tag(js, type="text/javascript", id=None):
+def wrap_in_script_tag(js: str, type: str="text/javascript", id: Optional[str]=None) -> str:
     '''
 
     '''

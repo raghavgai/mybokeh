@@ -13,18 +13,21 @@
     "noErrorTruncation": true,
     "noEmitOnError": false,
     "declaration": false,
-    "sourceMap": false,
+    "sourceMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "ES5",
-    "lib": ["es5", "dom", "es2015.core", "es2015.promise", "es2015.iterable"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "target": "ES2017",
+    "lib": ["es2017", "dom", "dom.iterable"],
     "types": [],
     "baseUrl": ".",
     "paths": {
       "*": ["../build/js/lib/*", "../build/js/types/*"]
     }
   },
-  "include": ["./*/*.ts", "./bokehjs.d.ts"]
+  "include": ["./**/*.ts", "./bokehjs.d.ts"]
 }

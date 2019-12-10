@@ -32,18 +32,12 @@ For complete examples of this technique, see
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ...util.callback_manager import _check_callback
@@ -103,7 +97,7 @@ class FunctionHandler(Handler):
                 modifications in-place.
 
         '''
-        super(FunctionHandler, self).__init__()
+        super().__init__()
 
         _check_callback(func, ('doc',))
 

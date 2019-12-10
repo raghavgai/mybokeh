@@ -1,14 +1,11 @@
-from __future__ import print_function
-
 from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
+from bokeh.models import (Column, CustomJS, DateRangeSlider,
+                          DateSlider, Div, RangeSlider, Row, Slider,)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-from bokeh.models.layouts import Row, Column
-from bokeh.models.widgets import Slider, RangeSlider, DateSlider, DateRangeSlider, Div
-from bokeh.models.callbacks import CustomJS
 
 slider = Slider(title="Numerical", value=50, start=0, end=96, step=5)
 
@@ -41,9 +38,9 @@ def color_picker():
         div.background = `rgb(${r}, ${g}, ${b})`
     """)
 
-    red.callback   = cb
-    green.callback = cb
-    blue.callback  = cb
+    red.js_on_change('value', cb)
+    green.js_on_change('value', cb)
+    blue.js_on_change('value', cb)
 
     return Row(children=[red, green, blue, div])
 

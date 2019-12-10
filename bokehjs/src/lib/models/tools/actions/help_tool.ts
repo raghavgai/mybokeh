@@ -28,12 +28,12 @@ export class HelpTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_HelpTool(): void {
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>({
       help_tooltip: [ p.String, 'Click the question mark to learn more about Bokeh plot tools.'],
-      redirect:     [ p.String, 'https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'],
+      redirect:     [ p.String, 'https://docs.bokeh.org/en/latest/docs/user_guide/tools.html'],
     })
   }
 
@@ -44,4 +44,3 @@ export class HelpTool extends ActionTool {
     return this.help_tooltip
   }
 }
-HelpTool.initClass()

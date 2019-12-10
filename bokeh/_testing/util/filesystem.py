@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -27,10 +25,6 @@ import os
 import shutil
 import sys
 import tempfile
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -100,7 +94,7 @@ def with_directory_contents(contents, func):
                     f.write(file_content)
         return func(os.path.realpath(dirname))
 
-def with_file_contents(contents, func, dir=None):
+def with_file_contents(contents, func, dir=None, suffix=''):
     '''
 
     '''
@@ -112,9 +106,9 @@ def with_file_contents(contents, func, dir=None):
         f.close()
         func(f.name)
 
-    with_temporary_file(with_file_object, dir=dir)
+    with_temporary_file(with_file_object, dir=dir, suffix=suffix)
 
-def with_temporary_file(func, dir=None):
+def with_temporary_file(func, dir=None, suffix=''):
     '''
 
     '''
@@ -125,7 +119,7 @@ def with_temporary_file(func, dir=None):
     # auto-delete, and then try to open the file again ourselves
     # with f.name. So we manually delete in the finally block
     # below.
-    f = tempfile.NamedTemporaryFile(dir=dir, delete=False)
+    f = tempfile.NamedTemporaryFile(dir=dir, delete=False, suffix=suffix)
     try:
         func(f)
     finally:

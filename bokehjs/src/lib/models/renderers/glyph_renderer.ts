@@ -17,6 +17,7 @@ import {extend, clone} from "core/util/object"
 import * as hittest from "core/hittest"
 import {Geometry} from "core/geometry"
 import {SelectionManager} from "core/selection_manager"
+import {build_view} from "core/build_views"
 import {Context2d} from "core/util/canvas"
 import {FactorRange} from '../ranges/factor_range'
 
@@ -59,8 +60,8 @@ export class GlyphRendererView extends DataRendererView {
   set_data_timestamp: number
   protected last_dtrender: number
 
-  initialize(): void {
-    super.initialize()
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
 
     const base_glyph = this.model.glyph
     const has_fill = includes(base_glyph.mixins, "fill")
@@ -75,32 +76,32 @@ export class GlyphRendererView extends DataRendererView {
       return new (base_glyph.constructor as any)(attrs)
     }
 
-    this.glyph = this.build_glyph_view(base_glyph)
+    this.glyph = await this.build_glyph_view(base_glyph)
 
     let {selection_glyph} = this.model
     if (selection_glyph == null)
       selection_glyph = mk_glyph({fill: {}, line: {}})
     else if (selection_glyph === "auto")
       selection_glyph = mk_glyph(selection_defaults)
-    this.selection_glyph = this.build_glyph_view(selection_glyph)
+    this.selection_glyph = await this.build_glyph_view(selection_glyph)
 
     let {nonselection_glyph} = this.model
     if ((nonselection_glyph == null))
       nonselection_glyph = mk_glyph({fill: {}, line: {}})
     else if (nonselection_glyph === "auto")
       nonselection_glyph = mk_glyph(nonselection_defaults)
-    this.nonselection_glyph = this.build_glyph_view(nonselection_glyph)
+    this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
     const {hover_glyph} = this.model
     if (hover_glyph != null)
-      this.hover_glyph = this.build_glyph_view(hover_glyph)
+      this.hover_glyph = await this.build_glyph_view(hover_glyph)
 
     const {muted_glyph} = this.model
     if (muted_glyph != null)
-      this.muted_glyph = this.build_glyph_view(muted_glyph)
+      this.muted_glyph = await this.build_glyph_view(muted_glyph)
 
     const decimated_glyph = mk_glyph(decimated_defaults)
-    this.decimated_glyph = this.build_glyph_view(decimated_glyph)
+    this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
     this.xscale = this.plot_view.frame.xscales[this.model.x_range_name]
     this.yscale = this.plot_view.frame.yscales[this.model.y_range_name]
@@ -108,8 +109,18 @@ export class GlyphRendererView extends DataRendererView {
     this.set_data(false)
   }
 
-  build_glyph_view<T extends Glyph>(model: T): GlyphView {
-    return new model.default_view({model, parent: this}) as GlyphView // XXX
+  async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
+    return build_view(glyph, {parent: this}) as Promise<GlyphView>
+  }
+
+  remove(): void {
+    this.glyph.remove()
+    this.selection_glyph.remove()
+    this.nonselection_glyph.remove()
+    this.hover_glyph?.remove()
+    this.muted_glyph?.remove()
+    this.decimated_glyph.remove()
+    super.remove()
   }
 
   connect_signals(): void {
@@ -126,6 +137,7 @@ export class GlyphRendererView extends DataRendererView {
       this.connect(this.model.data_source.inspect, () => this.request_render())
     this.connect(this.model.properties.view.change, () => this.set_data())
     this.connect(this.model.view.change, () => this.set_data())
+    this.connect(this.model.properties.visible.change, () => this.plot_view.update_dataranges())
 
     const {x_ranges, y_ranges} = this.plot_view.frame
 
@@ -235,12 +247,12 @@ export class GlyphRendererView extends DataRendererView {
       if (!inspected || inspected.is_empty())
         return []
       else {
-        if (inspected['0d'].glyph)
+        if (inspected.selected_glyph)
           return this.model.view.convert_indices_from_subset(indices)
-        else if (inspected['1d'].indices.length > 0)
-          return inspected['1d'].indices
+        else if (inspected.indices.length > 0)
+          return inspected.indices
         else
-          return map(Object.keys(inspected["2d"].indices), (i) => parseInt(i))
+          return map(Object.keys(inspected.multiline_indices), (i) => parseInt(i))
       }
     })())
 
@@ -393,7 +405,7 @@ export class GlyphRenderer extends DataRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GlyphRenderer(): void {
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props>({
@@ -434,4 +446,3 @@ export class GlyphRenderer extends DataRenderer {
     return this.data_source.selection_manager
   }
 }
-GlyphRenderer.initClass()

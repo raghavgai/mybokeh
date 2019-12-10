@@ -11,16 +11,12 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 
 # External imports
 from tornado.web import StaticFileHandler
@@ -53,7 +49,7 @@ class StaticHandler(StaticFileHandler):
         kw['path'] = settings.bokehjsdir()
 
         # Note: tornado_app is stored as self.application
-        super(StaticHandler, self).__init__(tornado_app, *args, **kw)
+        super().__init__(tornado_app, *args, **kw)
 
     # We aren't using tornado's built-in static_path function
     # because it relies on TornadoApplication's autoconfigured

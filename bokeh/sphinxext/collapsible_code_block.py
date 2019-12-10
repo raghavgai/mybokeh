@@ -13,16 +13,16 @@ This directive takes a heading to use for the collapsible code block:
     .. collapsible-code-block:: python
         :heading: Some Code
 
-        from __future__ import print_function
-
-        print("Hello, Bokeh!")
+                print("Hello, Bokeh!")
 
 This directive is identical to the standard ``code-block`` directive
 that Sphinx supplies, with the addition of one new option:
 
-heading : string
+heading (string):
     A heading to put for the collapsible block. Clicking the heading
-    expands or collapses the block
+    expands or collapses the block.
+
+
 
 Examples
 --------
@@ -32,18 +32,14 @@ The inline example code above produces the following output:
 .. collapsible-code-block:: python
     :heading: Some Code
 
-    from __future__ import print_function
-
-    print("Hello, Bokeh!")
+        print("Hello, Bokeh!")
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -56,11 +52,10 @@ from os.path import basename
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-
-# Bokeh imports
 from sphinx.directives.code import CodeBlock
 
-from .templates import CCB_PROLOGUE, CCB_EPILOGUE
+# Bokeh imports
+from .templates import CCB_EPILOGUE, CCB_PROLOGUE
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -12,23 +12,16 @@ receive.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-from tornado import gen
-
 # Bokeh imports
-from .session import ServerSession
 from ..protocol.exceptions import ProtocolError
+from .session import ServerSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,8 +65,7 @@ class ProtocolHandler(object):
         self._handlers['SERVER-INFO-REQ'] = self._server_info_req
         self._handlers['EVENT'] = ServerSession.event
 
-    @gen.coroutine
-    def handle(self, message, connection):
+    async def handle(self, message, connection):
         ''' Delegate a received message to the appropriate handler.
 
         Args:
@@ -88,7 +80,7 @@ class ProtocolHandler(object):
 
         '''
 
-        handler = self._handlers.get((message.msgtype, message.revision))
+        handler = self._handlers.get(message.msgtype)
 
         if handler is None:
             handler = self._handlers.get(message.msgtype)
@@ -97,16 +89,15 @@ class ProtocolHandler(object):
             raise ProtocolError("%s not expected on server" % message)
 
         try:
-            work = yield handler(message, connection)
+            work = await handler(message, connection)
         except Exception as e:
-            log.error("error handling message %r: %r", message, e)
-            log.debug("  message header %r content %r", message.header, message.content, exc_info=1)
+            log.error("error handling message\n message: %r \n error: %r",
+                      message, e, exc_info=True)
             work = connection.error(message, repr(e))
-        raise gen.Return(work)
+        return work
 
-    @gen.coroutine
-    def _server_info_req(self, message, connection):
-        raise gen.Return(connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid']))
+    async def _server_info_req(self, message, connection):
+        return connection.protocol.create('SERVER-INFO-REPLY', message.header['msgid'])
 
 #-----------------------------------------------------------------------------
 # Dev API

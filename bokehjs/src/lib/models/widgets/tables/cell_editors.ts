@@ -26,13 +26,18 @@ export abstract class CellEditorView extends DOMView {
   constructor(options: any) {
     super({model: options.column.model, ...options})
     this.args = options
-    this.render() // XXX: this isn't governed by layout
+    this.initialize() // XXX: no build_views()
+    this.render()     // XXX: this isn't governed by layout
   }
 
   initialize(): void {
     super.initialize()
     this.inputEl = this._createInput()
     this.defaultValue = null
+  }
+
+  async lazy_initialize(): Promise<void> {
+    throw new Error("unsupported")
   }
 
   css_classes(): string[] {
@@ -176,14 +181,13 @@ export interface StringEditor extends StringEditor.Attrs {}
 export class StringEditor extends CellEditor {
   properties: StringEditor.Props
 
-  static initClass(): void {
+  static init_StringEditor(): void {
     this.prototype.default_view = StringEditorView
     this.define<StringEditor.Props>({
       completions: [ p.Array, [] ],
     })
   }
 }
-StringEditor.initClass()
 
 export class TextEditorView extends CellEditorView {
   model: TextEditor
@@ -206,11 +210,10 @@ export interface TextEditor extends TextEditor.Attrs {}
 export class TextEditor extends CellEditor {
   properties: TextEditor.Props
 
-  static initClass(): void {
+  static init_TextEditor(): void {
     this.prototype.default_view = TextEditorView
   }
 }
-TextEditor.initClass()
 
 export class SelectEditorView extends CellEditorView {
   model: SelectEditor
@@ -242,14 +245,13 @@ export interface SelectEditor extends SelectEditor.Attrs {}
 export class SelectEditor extends CellEditor {
   properties: SelectEditor.Props
 
-  static initClass(): void {
+  static init_SelectEditor(): void {
     this.prototype.default_view = SelectEditorView
     this.define<SelectEditor.Props>({
       options: [ p.Array, [] ],
     })
   }
 }
-SelectEditor.initClass()
 
 export class PercentEditorView extends CellEditorView {
   model: PercentEditor
@@ -272,11 +274,10 @@ export interface PercentEditor extends PercentEditor.Attrs {}
 export class PercentEditor extends CellEditor {
   properties: PercentEditor.Props
 
-  static initClass(): void {
+  static init_PercentEditor(): void {
     this.prototype.default_view = PercentEditorView
   }
 }
-PercentEditor.initClass()
 
 export class CheckboxEditorView extends CellEditorView {
   model: CheckboxEditor
@@ -312,11 +313,10 @@ export interface CheckboxEditor extends CheckboxEditor.Attrs {}
 export class CheckboxEditor extends CellEditor {
   properties: CheckboxEditor.Props
 
-  static initClass(): void {
+  static init_CheckboxEditor(): void {
     this.prototype.default_view = CheckboxEditorView
   }
 }
-CheckboxEditor.initClass()
 
 export class IntEditorView extends CellEditorView {
   model: IntEditor
@@ -369,14 +369,13 @@ export interface IntEditor extends IntEditor.Attrs {}
 export class IntEditor extends CellEditor {
   properties: IntEditor.Props
 
-  static initClass(): void {
+  static init_IntEditor(): void {
     this.prototype.default_view = IntEditorView
     this.define<IntEditor.Props>({
       step: [ p.Number, 1 ],
     })
   }
 }
-IntEditor.initClass()
 
 export class NumberEditorView extends CellEditorView {
   model: NumberEditor
@@ -429,14 +428,13 @@ export interface NumberEditor extends NumberEditor.Attrs {}
 export class NumberEditor extends CellEditor {
   properties: NumberEditor.Props
 
-  static initClass(): void {
+  static init_NumberEditor(): void {
     this.prototype.default_view = NumberEditorView
     this.define<NumberEditor.Props>({
       step: [ p.Number, 0.01 ],
     })
   }
 }
-NumberEditor.initClass()
 
 export class TimeEditorView extends CellEditorView {
   model: TimeEditor
@@ -459,11 +457,10 @@ export interface TimeEditor extends TimeEditor.Attrs {}
 export class TimeEditor extends CellEditor {
   properties: TimeEditor.Props
 
-  static initClass(): void {
+  static init_TimeEditor(): void {
     this.prototype.default_view = TimeEditorView
   }
 }
-TimeEditor.initClass()
 
 export class DateEditorView extends CellEditorView {
   model: DateEditor
@@ -518,12 +515,14 @@ export class DateEditorView extends CellEditorView {
     return super.position()
   }
 
-  getValue(): any {}
+  getValue(): any {
     //return @$datepicker.datepicker("getDate").getTime()
+  }
 
-  setValue(_val: any): void {}
-}
+  setValue(_val: any): void {
     //@$datepicker.datepicker("setDate", new Date(val))
+  }
+}
 
 export namespace DateEditor {
   export type Attrs = p.AttrsOf<Props>
@@ -536,8 +535,7 @@ export interface DateEditor extends DateEditor.Attrs {}
 export class DateEditor extends CellEditor {
   properties: DateEditor.Props
 
-  static initClass(): void {
+  static init_DateEditor(): void {
     this.prototype.default_view = DateEditorView
   }
 }
-DateEditor.initClass()

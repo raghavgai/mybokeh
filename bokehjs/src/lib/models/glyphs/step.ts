@@ -33,12 +33,12 @@ export class StepView extends XYGlyphView {
       let y1: number, y2: number
       switch (this.model.mode) {
         case "before": {
-           [x1, y1] = [sx[i-1], sy[i]]
+          [x1, y1] = [sx[i-1], sy[i]]
           ;[x2, y2] = [sx[i],   sy[i]]
           break
         }
         case "after": {
-           [x1, y1] = [sx[i], sy[i-1]]
+          [x1, y1] = [sx[i], sy[i-1]]
           ;[x2, y2] = [sx[i], sy[i]  ]
           break
         }
@@ -107,7 +107,7 @@ export class Step extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Step(): void {
     this.prototype.default_view = StepView
 
     this.mixins(['line'])
@@ -116,4 +116,3 @@ export class Step extends XYGlyph {
     })
   }
 }
-Step.initClass()

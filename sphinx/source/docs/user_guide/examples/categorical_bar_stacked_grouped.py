@@ -1,5 +1,4 @@
-from bokeh.core.properties import value
-from bokeh.io import show, output_file
+from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, FactorRange
 from bokeh.plotting import figure
 
@@ -25,7 +24,7 @@ p = figure(x_range=FactorRange(*factors), plot_height=250,
            toolbar_location=None, tools="")
 
 p.vbar_stack(regions, x='x', width=0.9, alpha=0.5, color=["blue", "red"], source=source,
-             legend=[value(x) for x in regions])
+             legend_label=regions)
 
 p.y_range.start = 0
 p.y_range.end = 18

@@ -1,8 +1,17 @@
-from __future__ import print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+# Standard library imports
 import os
-import pytest
 import subprocess
+
+# External imports
+import pytest
+
 
 @pytest.mark.js
 class TestBokehJS(object):

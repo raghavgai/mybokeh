@@ -12,17 +12,12 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# External imports
-from six import iteritems
 
 # Bokeh imports
 from .bases import ParameterizedProperty
@@ -52,20 +47,20 @@ class Struct(ParameterizedProperty):
         for name, type in fields.items():
             self._fields[name] = self._validate_type_param(type)
 
-        super(Struct, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     @property
     def type_params(self):
         return list(self._fields.values())
 
     def validate(self, value, detail=True):
-        super(Struct, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is None:
             return
 
         if isinstance(value, dict) and len(value) <= len(self._fields):
-            for name, type in iteritems(self._fields):
+            for name, type in self._fields.items():
                 if not type.is_valid(value.get(name, None)):
                     break
             else:

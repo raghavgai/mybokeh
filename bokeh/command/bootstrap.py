@@ -33,9 +33,7 @@ The following are equivalent:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -44,15 +42,16 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import argparse
-
-# External imports
+import sys
 
 # Bokeh imports
 from bokeh import __version__
+from bokeh.settings import settings
 from bokeh.util.string import nice_join
 
-from .util import die
+# Bokeh imports
 from . import subcommands
+from .util import die
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -110,9 +109,17 @@ def main(argv):
 
     args = parser.parse_args(argv[1:])
     try:
-        args.invoke(args)
+        ret = args.invoke(args)
     except Exception as e:
-        die("ERROR: " + str(e))
+        if settings.dev:
+            raise
+        else:
+            die("ERROR: " + str(e))
+
+    if ret is False:
+        sys.exit(1)
+    elif ret is not True and isinstance(ret, int) and ret != 0:
+        sys.exit(ret)
 
 #-----------------------------------------------------------------------------
 # Dev API

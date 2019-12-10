@@ -1,15 +1,17 @@
 import numpy as np
-np.random.seed(0)
-
-from bokeh.io import curdoc
-from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource, Select, Slider
-from bokeh.plotting import figure
-from bokeh.palettes import Spectral6
-
 from sklearn import cluster, datasets
 from sklearn.neighbors import kneighbors_graph
 from sklearn.preprocessing import StandardScaler
+
+from bokeh.io import curdoc
+from bokeh.layouts import column, row
+from bokeh.models import ColumnDataSource, Select, Slider
+from bokeh.palettes import Spectral6
+from bokeh.plotting import figure
+
+np.random.seed(0)
+
+
 
 # define some helper functions
 def clustering(X, algorithm, n_clusters):
@@ -131,7 +133,6 @@ dataset_select = Select(value='Noisy Circles',
                         options=datasets_names)
 
 samples_slider = Slider(title="Number of samples",
-                        callback_policy="mouseup",
                         value=1500.0,
                         start=1000.0,
                         end=3000.0,
@@ -139,7 +140,6 @@ samples_slider = Slider(title="Number of samples",
                         width=400)
 
 clusters_slider = Slider(title="Number of clusters",
-                         callback_policy="mouseup",
                          value=2.0,
                          start=2.0,
                          end=10.0,

@@ -9,23 +9,28 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
+from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
+from bokeh._testing.util.selenium import RECORD, enter_text_in_element, hover_element
 from bokeh.layouts import column
-from bokeh.models import AutocompleteInput, Circle, ColumnDataSource, CustomAction, CustomJS, Plot, Range1d
-from bokeh._testing.util.selenium import enter_text_in_element, hover_element, RECORD
+from bokeh.models import (
+    AutocompleteInput,
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Plot,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -119,6 +124,32 @@ class Test_AutocompleteInput(object):
 
         assert page.has_no_console_errors()
 
+    def test_min_characters(self, bokeh_model_page):
+        text_input = AutocompleteInput(title="title", css_classes=["foo"],
+                                       completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"],
+                                       min_characters=1)
+
+        page = bokeh_model_page(text_input)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' in el.get_attribute('style')
+
+        # double click to highlight and overwrite old text
+        el = page.driver.find_element_by_css_selector('.foo input')
+        enter_text_in_element(page.driver, el, "1", click=2, enter=False)
+
+        el = page.driver.find_element_by_css_selector('.foo .bk-menu')
+        assert 'display: none;' not in el.get_attribute('style')
+
+        items = el.find_elements_by_tag_name("div")
+        assert len(items) == 3
+        assert items[0].text == "100001"
+        assert items[1].text == "12344556"
+        assert items[2].text == "12344557"
+        assert "bk-active" in items[0].get_attribute('class')
+        assert "bk-active" not in items[1].get_attribute('class')
+        assert "bk-active" not in items[2].get_attribute('class')
+
     def test_arrow_cannot_escape_menu(self, bokeh_model_page):
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
@@ -206,8 +237,7 @@ class Test_AutocompleteInput(object):
         assert "bk-active" not in items[0].get_attribute('class')
         assert "bk-active" in items[1].get_attribute('class')
 
-    # XXX (bev) always works locally but fails intermittently (often) on TravisCI
-    @pytest.mark.skip
+    @flaky(max_runs=5)
     def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 
@@ -222,6 +252,7 @@ class Test_AutocompleteInput(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_server_on_change_round_trip_full_entry(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 
@@ -250,6 +281,7 @@ class Test_AutocompleteInput(object):
         results = page.results
         assert results['data']['val'] == ["12344556", "3194567289"]
 
+    @flaky(max_runs=5)
     def test_server_on_change_round_trip_partial_entry(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 

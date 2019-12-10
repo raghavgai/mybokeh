@@ -4,11 +4,11 @@ of the color_scatter example from the bokeh gallery
 
 import numpy as np
 
-from bokeh.io import show, output_file
-from bokeh.plotting import figure
 from bokeh import events
-from bokeh.models import CustomJS, Div, Button
+from bokeh.io import output_file, show
 from bokeh.layouts import column, row
+from bokeh.models import Button, CustomJS, Div
+from bokeh.plotting import figure
 
 
 def display_event(div, attributes=[]):
@@ -71,6 +71,7 @@ point_attributes = ['x','y','sx','sy']
 p.js_on_event(events.Tap,       display_event(div, attributes=point_attributes))
 p.js_on_event(events.DoubleTap, display_event(div, attributes=point_attributes))
 p.js_on_event(events.Press,     display_event(div, attributes=point_attributes))
+p.js_on_event(events.PressUp,   display_event(div, attributes=point_attributes))
 
 # Mouse wheel event
 p.js_on_event(events.MouseWheel, display_event(div,attributes=point_attributes+['delta']))

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 '''This example demonstrates embedding an autoloaded Bokeh server
 into a simple Flask application, and passing arguments to Bokeh.
@@ -16,9 +15,8 @@ in this directory, and navigate to:
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import Slider, TextInput
+from bokeh.layouts import column, row
+from bokeh.models import ColumnDataSource, Slider, TextInput
 from bokeh.plotting import figure
 
 # Retrieving the arguments

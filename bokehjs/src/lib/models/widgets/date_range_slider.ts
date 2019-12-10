@@ -1,4 +1,4 @@
-import tz = require("timezone")
+import tz from "timezone"
 
 import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
 import * as p from "core/properties"
@@ -22,7 +22,7 @@ export class DateRangeSlider extends AbstractSlider {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DateRangeSlider(): void {
     this.prototype.default_view = DateRangeSliderView
 
     this.override({
@@ -37,4 +37,3 @@ export class DateRangeSlider extends AbstractSlider {
     return tz(value, format)
   }
 }
-DateRangeSlider.initClass()

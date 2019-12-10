@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,18 +19,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import hashlib
 import io
 import json
 import os
-from os.path import dirname, join, abspath, exists, isabs
 import re
-from subprocess import Popen, PIPE
-from collections import OrderedDict
 import sys
-
-# External imports
-import hashlib
-import six
+from collections import OrderedDict
+from os.path import abspath, dirname, exists, isabs, join
+from subprocess import PIPE, Popen
 
 # Bokeh imports
 from ..model import Model
@@ -48,7 +43,6 @@ __all__ = (
     'bundle_all_models',
     'bundle_models',
     'calc_cache_key',
-    'CoffeeScript',
     'CompilationError',
     'CustomModel',
     'FromFile',
@@ -80,7 +74,7 @@ class CompilationError(RuntimeError):
 
     '''
     def __init__(self, error):
-        super(CompilationError, self).__init__()
+        super().__init__()
         if isinstance(error, dict):
             self.line = error.get("line")
             self.column = error.get("column")
@@ -94,7 +88,7 @@ class CompilationError(RuntimeError):
         return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjsdir()
-nodejs_min_version = (6, 10, 0)
+nodejs_min_version = (10, 13, 0)
 
 def nodejs_version():
     return _version(_run_nodejs)
@@ -103,10 +97,6 @@ def npmjs_version():
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
-    if lang == "coffeescript":
-        from bokeh.util.deprecation import deprecated
-        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use JavaScript or TypeScript directly instead.")
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
     lines = output.split("\n")
@@ -142,36 +132,6 @@ class Inline(Implementation):
     def __init__(self, code, file=None):
         self.code = code
         self.file = file
-
-class CoffeeScript(Inline):
-    ''' An implementation for a Bokeh custom model in CoffeeScript.
-
-    Example:
-
-        .. code-block:: python
-
-            class MyExt(Model):
-                __implementation__ = CoffeeScript(""" <CoffeeScript code> """)
-
-    Note that ``CoffeeScript`` is the default implementation language for
-    custom model implementations. The following is equivalent to example above:
-
-    .. code-block:: python
-
-        class MyExt(Model):
-            __implementation__ == """ <some coffeescript code> """
-
-    '''
-
-    def __init__(self, *args, **kw):
-        from bokeh.util.deprecation import deprecated
-        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use JavaScript or TypeScript directly instead.")
-        super(CoffeeScript, self).__init__(*args, **kw)
-
-    @property
-    def lang(self):
-        return "coffeescript"
 
 class TypeScript(Inline):
     ''' An implementation for a Bokeh custom model in TypeScript
@@ -226,8 +186,6 @@ class FromFile(Implementation):
 
     @property
     def lang(self):
-        if self.file.endswith(".coffee"):
-            return "coffeescript"
         if self.file.endswith(".ts"):
             return "typescript"
         if self.file.endswith(".js"):
@@ -236,7 +194,7 @@ class FromFile(Implementation):
             return "less"
 
 #: recognized extensions that can be compiled
-exts = (".coffee", ".ts", ".js", ".css", ".less")
+exts = (".ts", ".js", ".css", ".less")
 
 class CustomModel(object):
     ''' Represent a custom (user-defined) Bokeh model.
@@ -278,11 +236,11 @@ class CustomModel(object):
     def implementation(self):
         impl = self.cls.__implementation__
 
-        if isinstance(impl, six.string_types):
+        if isinstance(impl, str):
             if "\n" not in impl and impl.endswith(exts):
                 impl = FromFile(impl if isabs(impl) else join(self.path, impl))
             else:
-                impl = CoffeeScript(impl)
+                impl = TypeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
             file = "%s%s.ts" % (self.file + ":" if self.file else "", self.name)
@@ -357,13 +315,6 @@ def bundle_all_models():
 _plugin_umd = \
 """\
 (function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    factory(require("Bokeh"));
-//  else if(typeof define === 'function' && define.amd)
-//    define(["Bokeh"], factory);
-//  else if(typeof exports === 'object')
-//    factory(require("Bokeh"));
-//  else
     factory(root["Bokeh"]);
 })(this, function(Bokeh) {
   var define;
@@ -371,12 +322,12 @@ _plugin_umd = \
 });
 """
 
-# XXX: this is the same as bokehjs/src/js/plugin-prelude.js
+# XXX: this is (almost) the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
 """\
 (function outer(modules, entry) {
   if (Bokeh != null) {
-    return Bokeh.register_plugin(modules, {}, entry);
+    return Bokeh.register_plugin(modules, entry);
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }
@@ -546,12 +497,15 @@ def _bundle_models(custom_models):
     exports = []
     modules = []
 
-    def read_json(name):
-        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
-            return json.loads(f.read())
+    with io.open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
+        bokeh = json.loads(f.read())
 
-    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
-    known_modules = set(sum([ read_json(name) for name in bundles ], []))
+    known_modules = set()
+    for artifact in bokeh["artifacts"]:
+        canonical = artifact["module"].get("canonical")
+        if canonical is not None:
+            known_modules.add(canonical)
+
     custom_impls = _compile_models(custom_models)
 
     extra_modules = {}

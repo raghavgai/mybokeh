@@ -1,17 +1,17 @@
-from __future__ import division
+from typing import Any, List, Tuple
 
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
-def streamlines(x, y, u, v, density=1):
+
+def streamlines(x: np.ndarray, y, u, v, density: float = 1) -> Tuple[List[Any], List[Any]]:
     ''' Return streamlines of a vector flow.
 
     * x and y are 1d arrays defining an *evenly spaced* grid.
     * u and v are 2d arrays (shape [y,x]) giving velocities.
-    * density controls the closeness of the streamlines. For different
-      densities in each direction, use a tuple or list [densityx, densityy].
+    * density controls the closeness of the streamlines.
 
     '''
 
@@ -37,6 +37,7 @@ def streamlines(x, y, u, v, density=1):
 
     NBX = int(30*density)
     NBY = int(30*density)
+
     blank = np.zeros((NBY,NBX))
 
     bx_spacing = NGX/float(NBX-1)

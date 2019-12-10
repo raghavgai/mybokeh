@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,14 +19,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-
-# External imports
+from typing import Optional, Tuple, Union
 
 # Bokeh imports
-from ..core.templates import DOC_NB_JS
 from ..core.json_encoder import serialize_json
+from ..core.templates import DOC_NB_JS
+from ..document import Document
 from ..model import Model
-from ..util.string import encode_utf8
+from ..themes import Theme
 from .elements import div_for_render_item
 from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
 
@@ -48,7 +46,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
+ThemeSource = Union[Theme, FromCurdoc, None]
+
+def notebook_content(model: Model, notebook_comms_target: Optional[str] = None, theme: ThemeSource = FromCurdoc) -> Tuple[str, str, Document]:
     ''' Return script and div that will display a Bokeh plot in a Jupyter
     Notebook.
 
@@ -95,7 +95,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
         render_items=serialize_json([render_item]),
     )
 
-    return encode_utf8(script), encode_utf8(div), new_doc
+    return script, div, new_doc
 
 #-----------------------------------------------------------------------------
 # Private API

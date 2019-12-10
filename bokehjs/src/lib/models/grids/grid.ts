@@ -1,3 +1,4 @@
+import {Axis} from "../axes"
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
@@ -10,14 +11,6 @@ import {isArray} from "core/util/types"
 export class GridView extends GuideRendererView {
   model: Grid
   visuals: Grid.Visuals
-
-  protected get _x_range_name(): string {
-    return this.model.x_range_name
-  }
-
-  protected get _y_range_name(): string {
-    return this.model.y_range_name
-  }
 
   render(): void {
     if (!this.model.visible)
@@ -47,8 +40,8 @@ export class GridView extends GuideRendererView {
       if (i % 2 != 1)
         continue
 
-      const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this._x_range_name, this._y_range_name)
-      const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this._x_range_name, this._y_range_name)
+      const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this.model.x_range_name, this.model.y_range_name)
+      const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this.model.x_range_name, this.model.y_range_name)
 
       if (this.visuals.band_fill.doit)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
@@ -56,7 +49,6 @@ export class GridView extends GuideRendererView {
       this.visuals.band_hatch.doit2(ctx, i, () => {
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
       }, () => this.request_render())
-
     }
   }
 
@@ -77,7 +69,7 @@ export class GridView extends GuideRendererView {
   protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
     for (let i = 0; i < xs.length; i++) {
-      const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this._x_range_name, this._y_range_name)
+      const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this.model.x_range_name, this.model.y_range_name)
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
       for (let i = 1; i < sx.length; i++)
@@ -99,7 +91,7 @@ export class GridView extends GuideRendererView {
   }
 
   computed_bounds(): [number, number] {
-    const [range,] = this.ranges()
+    const [range] = this.ranges()
 
     const user_bounds = this.model.bounds
     const range_bounds = [range.min, range.max]
@@ -143,19 +135,24 @@ export class GridView extends GuideRendererView {
     let [start, end] = this.computed_bounds();
     [start, end] = [Math.min(start, end), Math.max(start, end)]
 
+    const coords: [number[][], number[][]] = [[], []]
+
     // TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
     // currently only support "straight line" grids, this should be OK for now. If
     // we ever want to support "curved" grids, e.g. for some projections, we may
     // have to communicate more than just a single cross location.
-    const ticks = this.model.ticker.get_ticks(start, end, range, cross_range.min, {})[location]
+    const ticker = this.model.get_ticker()
+    if (ticker == null) {
+      return coords
+    }
+
+    const ticks = ticker.get_ticks(start, end, range, cross_range.min, {})[location]
 
     const min = range.min
     const max = range.max
 
     const cmin = cross_range.min
     const cmax = cross_range.max
-
-    const coords: [number[][], number[][]] = [[], []]
 
     if (!exclude_ends) {
       if (ticks[0] != min)
@@ -190,6 +187,7 @@ export namespace Grid {
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
+    axis: p.Property<Axis>
     ticker: p.Property<Ticker<any>>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
@@ -215,7 +213,7 @@ export class Grid extends GuideRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Grid(): void {
     this.prototype.default_view = GridView
 
     this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_', 'hatch:band_'])
@@ -223,6 +221,7 @@ export class Grid extends GuideRenderer {
     this.define<Grid.Props>({
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)
       dimension:    [ p.Any,     0         ],
+      axis:         [ p.Instance           ],
       ticker:       [ p.Instance           ],
       x_range_name: [ p.String,  'default' ],
       y_range_name: [ p.String,  'default' ],
@@ -236,5 +235,15 @@ export class Grid extends GuideRenderer {
       minor_grid_line_color: null,
     })
   }
+
+  get_ticker(): Ticker<any> | null {
+    if (this.ticker != null) {
+      return this.ticker
+    }
+    if (this.axis != null) {
+      return this.axis.ticker
+    }
+    return null
+  }
+
 }
-Grid.initClass()

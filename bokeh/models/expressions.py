@@ -31,18 +31,12 @@ browser by the JavaScript implementation of ``some_expression`` using a
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -70,10 +64,11 @@ class Expression(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block:: coffeescript
+    .. code-block
 
-        v_compute: (source) ->
-            # compute an array of values
+        v_compute(source: ColumnarDataSource): Arrayable {
+            # compute and return array of values
+        }
 
     .. note::
         If you wish for results to be cached per source and updated only if

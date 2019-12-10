@@ -1,6 +1,6 @@
-from bokeh.sampledata.glucose import data
-from bokeh.plotting import figure, show, output_file
 from bokeh.models import BoxAnnotation
+from bokeh.plotting import figure, output_file, show
+from bokeh.sampledata.glucose import data
 
 output_file("box_annotation.html", title="box_annotation.py example")
 
@@ -11,7 +11,7 @@ data = data.loc['2010-10-06':'2010-10-13']
 
 p = figure(x_axis_type="datetime", tools=TOOLS)
 
-p.line(data.index.to_series(), data['glucose'], line_color="gray", line_width=1, legend="glucose")
+p.line(data.index.to_series(), data['glucose'], line_color="gray", line_width=1, legend_label="glucose")
 
 low_box = BoxAnnotation(top=80, fill_alpha=0.1, fill_color='red')
 mid_box = BoxAnnotation(bottom=80, top=180, fill_alpha=0.1, fill_color='green')

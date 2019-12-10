@@ -11,26 +11,24 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..core.enums import MapType
 from ..core.has_props import abstract
-from ..core.properties import Bool, Enum, Float, Instance, Int, JSON, Override, String
+from ..core.properties import JSON, Bool, Enum, Float, Instance, Int, Override, String
 from ..core.validation import error, warning
+from ..core.validation.errors import (
+    INCOMPATIBLE_MAP_RANGE_TYPE,
+    MISSING_GOOGLE_API_KEY,
+    REQUIRED_RANGE,
+)
 from ..core.validation.warnings import MISSING_RENDERERS
-from ..core.validation.errors import INCOMPATIBLE_MAP_RANGE_TYPE, REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
 from ..model import Model
 from ..models.ranges import Range1d
 from .plots import Plot
@@ -79,7 +77,7 @@ class MapPlot(Plot):
         for r in ('x_range', 'y_range'):
             if r in kw and not isinstance(kw.get(r), Range1d):
                 raise ValueError('Invalid value for %r, MapPlot ranges may only be Range1d, not data ranges' % r)
-        super(MapPlot, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
     @error(INCOMPATIBLE_MAP_RANGE_TYPE)
     def _check_incompatible_map_range_type(self):

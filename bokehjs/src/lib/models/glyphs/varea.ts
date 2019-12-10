@@ -20,7 +20,7 @@ export interface VAreaData extends AreaData {
 export interface VAreaView extends VAreaData {}
 
 export class VAreaView extends AreaView {
-  model:VArea
+  model: VArea
   visuals: VArea.Visuals
 
   protected _index_data(): SpatialIndex {
@@ -122,7 +122,7 @@ export class VArea extends Area {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_VArea(): void {
     this.prototype.default_view = VAreaView
 
     this.define<VArea.Props>({
@@ -132,4 +132,3 @@ export class VArea extends Area {
     })
   }
 }
-VArea.initClass()

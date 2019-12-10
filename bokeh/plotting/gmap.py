@@ -8,28 +8,30 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-from six import string_types
-
 # Bokeh imports
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..core.properties import Auto, Either, Enum, Int, Seq, Instance, String
-from ..models import GMapPlot, LinearAxis, MercatorTicker, MercatorTickFormatter, Range1d, Title, Tool
-from ..models import glyphs, markers
+from ..core.properties import Auto, Either, Enum, Instance, Int, Seq, String
+from ..models import (
+    GMapPlot,
+    LinearAxis,
+    MercatorTicker,
+    MercatorTickFormatter,
+    Range1d,
+    Title,
+    Tool,
+    glyphs,
+    markers,
+)
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
-from .helpers import _process_tools_arg, _process_active_tools, _glyph_function
+from .helpers import _glyph_function, _process_active_tools, _process_tools_arg
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -86,10 +88,10 @@ class GMap(GMapPlot):
         opts = GMapFigureOptions(kw)
 
         title = kw.get("title", None)
-        if isinstance(title, string_types):
+        if isinstance(title, str):
             kw['title'] = Title(text=title)
 
-        super(GMap, self).__init__(x_range=Range1d(), y_range=Range1d(), **kw)
+        super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
         xf = MercatorTickFormatter(dimension="lon")
         xt = MercatorTicker(dimension="lon")

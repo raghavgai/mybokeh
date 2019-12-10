@@ -1,12 +1,12 @@
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
-from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
-def modify_doc(doc):
+def bkapp(doc):
     df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
@@ -19,7 +19,7 @@ def modify_doc(doc):
             data = df
         else:
             data = df.rolling('{0}D'.format(new)).mean()
-        source.data = ColumnDataSource(data=data).data
+        source.data = ColumnDataSource.from_df(data)
 
     slider = Slider(start=0, end=30, value=0, step=1, title="Smoothing by N Days")
     slider.on_change('value', callback)
@@ -31,7 +31,7 @@ def modify_doc(doc):
 # Setting num_procs here means we can't touch the IOLoop before now, we must
 # let Server handle that. If you need to explicitly handle IOLoops then you
 # will need to use the lower level BaseServer class.
-server = Server({'/': modify_doc}, num_procs=4)
+server = Server({'/': bkapp}, num_procs=4)
 server.start()
 
 if __name__ == '__main__':

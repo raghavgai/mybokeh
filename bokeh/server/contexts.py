@@ -11,27 +11,22 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
 from tornado import gen
 
 # Bokeh imports
-from .session import ServerSession
-
 from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError
-from ..util.tornado import _CallbackGroup, yield_for_all_futures
+from ..util.tornado import _CallbackGroup
+from .session import ServerSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -89,25 +84,24 @@ class BokehServerContext(ServerContext):
         self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
-    def __init__(self, session_id, server_context, document):
+    def __init__(self, session_id, server_context, document, logout_url=None):
         self._document = document
         self._session = None
-        super(BokehSessionContext, self).__init__(server_context,
-                                                  session_id)
+        self._logout_url = logout_url
+        super().__init__(server_context, session_id)
         # request arguments used to instantiate this session
         self._request = None
 
     def _set_session(self, session):
         self._session = session
 
-    @gen.coroutine
-    def with_locked_document(self, func):
+    async def with_locked_document(self, func):
         if self._session is None:
             # this means we are in on_session_created, so no locking yet,
             # we have exclusive access
-            yield yield_for_all_futures(func(self._document))
+            await func(self._document)
         else:
-            self._session.with_document_locked(func, self._document)
+            await self._session.with_document_locked(func, self._document)
 
     @property
     def destroyed(self):
@@ -116,6 +110,10 @@ class BokehSessionContext(SessionContext):
             return False
         else:
             return self._session.destroyed
+
+    @property
+    def logout_url(self):
+        return self._logout_url
 
     @property
     def request(self):
@@ -132,7 +130,7 @@ class ApplicationContext(object):
         data specific to an "instance" of the application.
     '''
 
-    def __init__(self, application, io_loop=None, url=None):
+    def __init__(self, application, io_loop=None, url=None, logout_url=None):
         self._application = application
         self._loop = io_loop
         self._sessions = dict()
@@ -140,6 +138,7 @@ class ApplicationContext(object):
         self._session_contexts = dict()
         self._server_context = None
         self._url = url
+        self._logout_url = logout_url
 
     @property
     def io_loop(self):
@@ -165,26 +164,19 @@ class ApplicationContext(object):
 
     def run_load_hook(self):
         try:
-            result = self._application.on_server_loaded(self.server_context)
-            if isinstance(result, gen.Future):
-                log.error("on_server_loaded returned a Future; this doesn't make sense "
-                          "because we run this hook before starting the IO loop.")
+            self._application.on_server_loaded(self.server_context)
         except Exception as e:
             log.error("Error in server loaded hook %r", e, exc_info=True)
 
     def run_unload_hook(self):
         try:
-            result = self._application.on_server_unloaded(self.server_context)
-            if isinstance(result, gen.Future):
-                log.error("on_server_unloaded returned a Future; this doesn't make sense "
-                          "because we stop the IO loop right away after calling on_server_unloaded.")
+            self._application.on_server_unloaded(self.server_context)
         except Exception as e:
             log.error("Error in server unloaded hook %r", e, exc_info=True)
 
         self.server_context._remove_all_callbacks()
 
-    @gen.coroutine
-    def create_session_if_needed(self, session_id, request=None):
+    async def create_session_if_needed(self, session_id, request=None):
         # this is because empty session_ids would be "falsey" and
         # potentially open up a way for clients to confuse us
         if len(session_id) == 0:
@@ -198,7 +190,8 @@ class ApplicationContext(object):
 
             session_context = BokehSessionContext(session_id,
                                                   self.server_context,
-                                                  doc)
+                                                  doc,
+                                                  logout_url=self._logout_url)
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request)
 
@@ -208,7 +201,7 @@ class ApplicationContext(object):
 
 
             try:
-                yield yield_for_all_futures(self._application.on_session_created(session_context))
+                await self._application.on_session_created(session_context)
             except Exception as e:
                 log.error("Failed to run session creation hooks %r", e, exc_info=True)
 
@@ -226,11 +219,11 @@ class ApplicationContext(object):
         if session_id in self._pending_sessions:
             # another create_session_if_needed is working on
             # creating this session
-            session = yield self._pending_sessions[session_id]
+            session = await self._pending_sessions[session_id]
         else:
             session = self._sessions[session_id]
 
-        raise gen.Return(session)
+        return session
 
     def get_session(self, session_id):
         if session_id in self._sessions:
@@ -239,8 +232,7 @@ class ApplicationContext(object):
         else:
             raise ProtocolError("No such session " + session_id)
 
-    @gen.coroutine
-    def _discard_session(self, session, should_discard):
+    async def _discard_session(self, session, should_discard):
         if session.connection_count > 0:
             raise RuntimeError("Should not be discarding a session with open connections")
         log.debug("Discarding session %r last in use %r milliseconds ago", session.id, session.milliseconds_since_last_unsubscribe)
@@ -250,7 +242,7 @@ class ApplicationContext(object):
         # session.destroy() wants the document lock so it can shut down the document
         # callbacks.
         def do_discard():
-            # while we yielded for the document lock, the discard-worthiness of the
+            # while we awaited for the document lock, the discard-worthiness of the
             # session may have changed.
             # However, since we have the document lock, our own lock will cause the
             # block count to be 1. If there's any other block count besides our own,
@@ -262,21 +254,19 @@ class ApplicationContext(object):
                 log.trace("Session %r was successfully discarded", session.id)
             else:
                 log.warning("Session %r was scheduled to discard but came back to life", session.id)
-        yield session.with_document_locked(do_discard)
+        await session.with_document_locked(do_discard)
 
         # session lifecycle hooks are supposed to be called outside the document lock,
         # we only run these if we actually ended up destroying the session.
         if session_context.destroyed:
             try:
-                result = self._application.on_session_destroyed(session_context)
-                yield yield_for_all_futures(result)
+                await self._application.on_session_destroyed(session_context)
             except Exception as e:
                 log.error("Failed to run session destroy hooks %r", e, exc_info=True)
 
-        raise gen.Return(None)
+        return None
 
-    @gen.coroutine
-    def _cleanup_sessions(self, unused_session_linger_milliseconds):
+    async def _cleanup_sessions(self, unused_session_linger_milliseconds):
         def should_discard_ignoring_block(session):
             return session.connection_count == 0 and \
                 (session.milliseconds_since_last_unsubscribe > unused_session_linger_milliseconds or \
@@ -292,9 +282,9 @@ class ApplicationContext(object):
         # asynchronously reconsider each session
         for session in to_discard:
             if should_discard_ignoring_block(session) and not session.expiration_blocked:
-                yield self._discard_session(session, should_discard_ignoring_block)
+                await self._discard_session(session, should_discard_ignoring_block)
 
-        raise gen.Return(None)
+        return None
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -302,13 +292,22 @@ class ApplicationContext(object):
 
 class _RequestProxy(object):
     def __init__(self, request):
-        args_copy = dict(request.arguments)
-        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
-        if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
-        self._args = args_copy
+        self._request = request
+
+        arguments = dict(request.arguments)
+        if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
+        self._arguments = arguments
+
     @property
     def arguments(self):
-        return self._args
+        return self._arguments
+
+    def __getattr__(self, name):
+        if not name.startswith("_"):
+            val = getattr(self._request, name, None)
+            if val is not None:
+                return val
+        return super.__getattr__(name)
 
 #-----------------------------------------------------------------------------
 # Code

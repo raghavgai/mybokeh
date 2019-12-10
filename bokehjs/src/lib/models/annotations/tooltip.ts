@@ -22,7 +22,7 @@ export class TooltipView extends AnnotationView {
   initialize(): void {
     super.initialize()
     // TODO (bev) really probably need multiple divs
-    this.plot_view.canvas_overlays.appendChild(this.el)
+    this.plot_view.canvas_view.add_overlay(this.el)
     undisplay(this.el)
   }
 
@@ -59,7 +59,7 @@ export class TooltipView extends AnnotationView {
 
     for (const [sx, sy, content] of data) {
       if (this.model.inner_only && !frame.bbox.contains(sx, sy))
-          continue
+        continue
 
       const tip = div({}, content)
       this.el.appendChild(tip)
@@ -102,8 +102,6 @@ export class TooltipView extends AnnotationView {
         top = sy - this.el.offsetHeight - arrow_size
         left = Math.round(sx - this.el.offsetWidth/2)
         break
-      default:
-        throw new Error("unreachable code")
     }
 
     if (this.model.show_arrow)
@@ -141,7 +139,7 @@ export class Tooltip extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Tooltip(): void {
     this.prototype.default_view = TooltipView
 
     this.define<Tooltip.Props>({
@@ -168,4 +166,3 @@ export class Tooltip extends Annotation {
     this.data = this.data.concat([[sx, sy, content]])
   }
 }
-Tooltip.initClass()

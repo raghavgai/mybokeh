@@ -1,4 +1,4 @@
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import {BoxAnnotation, EDGE_TOLERANCE} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"
 import {Range1d} from "../../ranges/range1d"
@@ -64,7 +64,7 @@ export function compute_value(value: number, scale: Scale, sdelta: number, range
   return value
 }
 
-export function compute_end_side(end: number, range: Range, side: Side): Side {
+export function update_range_end_side(end: number, range: Range, side: Side): Side {
   if (end > range.start) {
     range.end = end
     return side
@@ -75,8 +75,8 @@ export function compute_end_side(end: number, range: Range, side: Side): Side {
   }
 }
 
-export function compute_start_side(start: number, range: Range, side: Side): Side {
-  if (start < range.end ) {
+export function update_range_start_side(start: number, range: Range, side: Side): Side {
+  if (start < range.end) {
     range.start = start
     return side
   } else {
@@ -121,7 +121,7 @@ export class RangeToolView extends GestureToolView {
       this.connect(this.model.y_range.change, () => this.model.update_overlay_from_ranges())
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     this.last_dx = 0
     this.last_dy = 0
 
@@ -161,7 +161,7 @@ export class RangeToolView extends GestureToolView {
     }
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const frame = this.plot_view.frame
 
     const new_dx = ev.deltaX - this.last_dx
@@ -178,10 +178,10 @@ export class RangeToolView extends GestureToolView {
         update_range(xr, xscale, new_dx, frame.x_range)
       else if (this.side == Side.Left) {
         const start = compute_value(xr.start, xscale, new_dx, frame.x_range)
-        this.side = compute_start_side(start, xr, this.side)
+        this.side = update_range_start_side(start, xr, this.side)
       } else if (this.side == Side.Right) {
         const end = compute_value(xr.end, xscale, new_dx, frame.x_range)
-        this.side = compute_end_side(end, xr, this.side)
+        this.side = update_range_end_side(end, xr, this.side)
       }
     }
 
@@ -189,13 +189,11 @@ export class RangeToolView extends GestureToolView {
       if (this.side == Side.BottomTop || this.side == Side.LeftRightBottomTop)
         update_range(yr, yscale, new_dy, frame.y_range)
       else if (this.side == Side.Bottom) {
-        yr.start = compute_value(yr.start, yscale, new_dy, frame.y_range)
         const start = compute_value(yr.start, yscale, new_dy, frame.y_range)
-        this.side = compute_start_side(start, yr, this.side)
+        this.side = update_range_start_side(start, yr, this.side)
       } else if (this.side == Side.Top) {
-        yr.end = compute_value(yr.end, yscale, new_dy, frame.y_range)
         const end = compute_value(yr.end, yscale, new_dy, frame.y_range)
-        this.side = compute_end_side(end, yr, this.side)
+        this.side = update_range_end_side(end, yr, this.side)
       }
     }
 
@@ -204,7 +202,7 @@ export class RangeToolView extends GestureToolView {
 
   }
 
-  _pan_end(_ev: GestureEvent): void {
+  _pan_end(_ev: PanEvent): void {
     this.side = Side.None
   }
 
@@ -246,15 +244,15 @@ export class RangeTool extends GestureTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_RangeTool(): void {
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>({
-        x_range:       [ p.Instance, null                  ],
-        x_interaction: [ p.Boolean,  true                  ],
-        y_range:       [ p.Instance, null                  ],
-        y_interaction: [ p.Boolean,  true                  ],
-        overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
+      x_range:       [ p.Instance, null                  ],
+      x_interaction: [ p.Boolean,  true                  ],
+      y_range:       [ p.Instance, null                  ],
+      y_interaction: [ p.Boolean,  true                  ],
+      overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
     })
 
   }
@@ -297,4 +295,3 @@ export class RangeTool extends GestureTool {
   event_type = "pan" as "pan"
   default_order = 1
 }
-RangeTool.initClass()

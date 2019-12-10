@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,12 +20,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import base64
-from io import BytesIO
 import re
+from io import BytesIO
 
 # External imports
 import PIL.Image
-from six import string_types
 
 # Bokeh imports
 from .. import enums
@@ -37,9 +34,9 @@ from .container import Seq, Tuple
 from .datetime import Datetime, TimeDelta
 from .either import Either
 from .enum import Enum
-from .numeric import Int, Float
-from .regex import Regex
+from .numeric import Float, Int
 from .primitive import String
+from .regex import Regex
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -86,15 +83,15 @@ class DashPattern(Either):
 
     def __init__(self, default=[], help=None):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
-        super(DashPattern, self).__init__(*types, default=default, help=help)
+        super().__init__(*types, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__
 
     def transform(self, value):
-        value = super(DashPattern, self).transform(value)
+        value = super().transform(value)
 
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             try:
                 return self._dash_patterns[value]
             except KeyError:
@@ -110,9 +107,9 @@ class FontSize(String):
     _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
     def validate(self, value, detail=True):
-        super(FontSize, self).validate(value, detail)
+        super().validate(value, detail)
 
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             if len(value) == 0:
                 msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
@@ -130,7 +127,7 @@ class HatchPatternType(Either):
 
     def __init__(self, default=[], help=None):
         types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
-        super(HatchPatternType, self).__init__(*types, default=default, help=help)
+        super().__init__(*types, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__
@@ -156,7 +153,7 @@ class Image(Property):
 
         valid = False
 
-        if value is None or isinstance(value, (string_types, PIL.Image.Image)):
+        if value is None or isinstance(value, (str, PIL.Image.Image)):
             valid = True
 
         if isinstance(value, np.ndarray):
@@ -174,7 +171,7 @@ class Image(Property):
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):
@@ -210,10 +207,10 @@ class MinMaxBounds(Either):
                 Tuple(Float, Float),
                 Tuple(TimeDelta, TimeDelta),
             )
-        super(MinMaxBounds, self).__init__(*types, default=default, help=help)
+        super().__init__(*types, default=default, help=help)
 
     def validate(self, value, detail=True):
-        super(MinMaxBounds, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is None:
             pass
@@ -235,7 +232,7 @@ class MarkerType(Enum):
 
     '''
     def __init__(self, **kw):
-        super(MarkerType, self).__init__(enums.MarkerType, **kw)
+        super().__init__(enums.MarkerType, **kw)
 
 #-----------------------------------------------------------------------------
 # Dev API

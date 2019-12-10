@@ -23,6 +23,7 @@ export namespace DataRange1d {
     follow: p.Property<StartEnd>
     follow_interval: p.Property<number>
     default_span: p.Property<number>
+    only_visible: p.Property<boolean>
 
     scale_hint: p.Property<"log" | "auto">
   }
@@ -37,16 +38,17 @@ export class DataRange1d extends DataRange {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DataRange1d(): void {
     this.define<DataRange1d.Props>({
       start:               [ p.Number                  ],
       end:                 [ p.Number                  ],
       range_padding:       [ p.Number,       0.1       ],
       range_padding_units: [ p.PaddingUnits, "percent" ],
       flipped:             [ p.Boolean,      false     ],
-      follow:              [ p.StartEnd,               ],
+      follow:              [ p.StartEnd                ],
       follow_interval:     [ p.Number                  ],
       default_span:        [ p.Number,       2         ],
+      only_visible:        [ p.Boolean,      false     ],
     })
 
     this.internal({
@@ -113,14 +115,14 @@ export class DataRange1d extends DataRange {
     let result = bbox.empty()
 
     for (const r of renderers) {
-      if (bounds[r.id] != null)
+      if (bounds[r.id] != null && (r.visible || !this.only_visible))
         result = bbox.union(result, bounds[r.id])
     }
 
     return result
   }
 
-   adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
+  adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
     const result = bbox.empty()
 
     let width = bounds.x1 - bounds.x0
@@ -298,4 +300,3 @@ export class DataRange1d extends DataRange {
     this.change.emit()
   }
 }
-DataRange1d.initClass()

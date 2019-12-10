@@ -7,7 +7,7 @@ to test WebGL blending.
 
 """
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.iris import flowers
 
 colormap1 = {'setosa': 'rgb(255, 0, 0)',
@@ -23,10 +23,10 @@ p.xaxis.axis_label = 'Petal Length'
 p.yaxis.axis_label = 'Petal Width'
 
 p.diamond(flowers["petal_length"], flowers["petal_width"],
-          color=colors1, line_alpha=0.5, fill_alpha=0.2, size=25, legend='diamonds')
+          color=colors1, line_alpha=0.5, fill_alpha=0.2, size=25, legend_label='diamonds')
 
 p.circle(flowers["petal_length"], flowers["petal_width"],
-         color=colors2, line_alpha=0.5, fill_alpha=0.2, size=10, legend='circles')
+         color=colors2, line_alpha=0.5, fill_alpha=0.2, size=10, legend_label='circles')
 
 output_file("iris_blend.html", title="iris_blend.py example")
 

@@ -48,27 +48,40 @@ All these glyphs share a minimal common interface through their base class
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
-from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, String,
-                               Include, Instance, Int, NumberSpec, Override, StringSpec)
-from ..core.property_mixins import FillProps, HatchProps, LineProps, ScalarFillProps, ScalarHatchProps, ScalarLineProps, TextProps
+from ..core.properties import (
+    AngleSpec,
+    Bool,
+    DistanceSpec,
+    Enum,
+    Float,
+    Include,
+    Instance,
+    Int,
+    NumberSpec,
+    Override,
+    String,
+    StringSpec,
+)
+from ..core.property_mixins import (
+    FillProps,
+    HatchProps,
+    LineProps,
+    ScalarFillProps,
+    ScalarHatchProps,
+    ScalarLineProps,
+    TextProps,
+)
 from ..model import Model
-
 from .mappers import ColorMapper, LinearColorMapper
 
 #-----------------------------------------------------------------------------
@@ -359,7 +372,7 @@ class HArea(Glyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    The %s values for the horizontal directed area.
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
@@ -483,11 +496,11 @@ class Image(XYGlyph):
             mapper = LinearColorMapper(palette)
             kwargs['color_mapper'] = mapper
 
-        super(Image, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('image', 'x', 'y', 'dw', 'dh', 'global_alpha', 'dilate')
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     # a hook to specify any additional kwargs handled by an initializer
     _extra_kws = {
@@ -556,7 +569,7 @@ class ImageRGBA(XYGlyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('image', 'x', 'y', 'dw', 'dh', 'global_alpha', 'dilate')
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     image = NumberSpec(help="""
     The arrays of RGBA data for the images.
@@ -611,7 +624,7 @@ class ImageURL(XYGlyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
+    _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'dilate')
 
     url = StringSpec(default=None, help="""
     The URLs to retrieve images from.
@@ -1198,7 +1211,7 @@ class VArea(Glyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    The %s values for the vertical directed area
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
@@ -1299,10 +1312,9 @@ class Wedge(XYGlyph):
 # Code
 #-----------------------------------------------------------------------------
 
-# XXX: allow `from bokeh.models.glyphs import *`
-from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Dash,
-                      Diamond, DiamondCross, Hex, InvertedTriangle, Marker,
-                      Square, SquareCross, SquareX, Triangle, X)
+# XXX: allow `from bokeh.models.glyphs import *
+from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross, # isort:skip
+                      Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)   # isort:skip
 
 # Fool pyflakes
 (Asterisk, Circle, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross,

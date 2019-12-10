@@ -18,9 +18,7 @@ performance and efficiency. The list of supported dtypes is:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -32,16 +30,16 @@ import base64
 import datetime as dt
 import math
 import sys
-from threading import Lock
 import uuid
+from threading import Lock
 
 # External imports
 import numpy as np
 
 # Bokeh imports
 from ..settings import settings
-from .string import format_docstring
 from .dependencies import import_optional
+from .string import format_docstring
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -209,28 +207,9 @@ def convert_datetime_array(array):
     if not isinstance(array, np.ndarray):
         return array
 
-    try:
-        dt2001 = np.datetime64('2001')
-        legacy_datetime64 = (dt2001.astype('int64') ==
-                             dt2001.astype('datetime64[ms]').astype('int64'))
-    except AttributeError as e:
-        if e.args == ("'module' object has no attribute 'datetime64'",):
-            # for compatibility with PyPy that doesn't have datetime64
-            if 'PyPy' in sys.version:
-                legacy_datetime64 = False
-                pass
-            else:
-                raise e
-        else:
-            raise e
-
     # not quite correct, truncates to ms..
     if array.dtype.kind == 'M':
-        if legacy_datetime64:
-            if array.dtype == np.dtype('datetime64[ns]'):
-                array = array.astype('int64') / 10**6.0
-        else:
-            array =  array.astype('datetime64[us]').astype('int64') / 1000.
+        array =  array.astype('datetime64[us]').astype('int64') / 1000.
 
     elif array.dtype.kind == 'm':
         array = array.astype('timedelta64[us]').astype('int64') / 1000.
@@ -251,7 +230,7 @@ def make_id():
     '''
     global _simple_id
 
-    if settings.simple_ids(True):
+    if settings.simple_ids():
         with _simple_id_lock:
             _simple_id += 1
             return str(_simple_id)

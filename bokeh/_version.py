@@ -9,8 +9,7 @@
 
 """Git implementation of _version.py."""
 
-from __future__ import print_function
-
+# Standard library imports
 import errno
 import os
 import re

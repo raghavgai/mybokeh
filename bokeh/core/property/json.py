@@ -11,18 +11,12 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from .primitive import String
@@ -66,7 +60,7 @@ class JSON(String):
 
     '''
     def validate(self, value, detail=True):
-        super(JSON, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is None: return
 

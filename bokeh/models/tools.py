@@ -30,45 +30,58 @@ always be active regardless of what other tools are currently active.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from types import FunctionType
-
-# External imports
-
 # Bokeh imports
-from ..core.enums import (Anchor, Dimension, Dimensions, Location,
-                          TooltipFieldFormatter, TooltipAttachment)
+from ..core.enums import (
+    Anchor,
+    Dimension,
+    Dimensions,
+    Location,
+    TooltipAttachment,
+    TooltipFieldFormatter,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
-    Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Image, Int, Float,
-    Percent, Instance, List, Seq, String, Tuple
+    Auto,
+    Bool,
+    Color,
+    Date,
+    Datetime,
+    Dict,
+    Either,
+    Enum,
+    Float,
+    Image,
+    Instance,
+    Int,
+    List,
+    Percent,
+    Seq,
+    String,
+    Tuple,
 )
-from ..util.compiler import nodejs_compile, CompilationError
-from ..util.dependencies import import_required
-from ..util.future import get_param_info, signature
 from ..core.validation import error
 from ..core.validation.errors import (
-    INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
-    INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_POLY_EDIT_RENDERER,
-    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER, NO_RANGE_TOOL_RANGES
+    INCOMPATIBLE_BOX_EDIT_RENDERER,
+    INCOMPATIBLE_POINT_DRAW_RENDERER,
+    INCOMPATIBLE_POLY_DRAW_RENDERER,
+    INCOMPATIBLE_POLY_EDIT_RENDERER,
+    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
+    NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
-
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import XYGlyph, Rect, Patches, MultiLine
-from .ranges import Range1d
-from .renderers import Renderer, GlyphRenderer
+from .glyphs import MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
+from .ranges import Range1d
+from .renderers import GlyphRenderer, Renderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -858,7 +871,7 @@ class CustomJSHover(Model):
         .. code-block:: python
 
             lat_custom = CustomJSHover(code="""
-                var projections = require("core/util/projections");
+                var projections = Bokeh.require("core/util/projections");
                 var x = special_vars.x
                 var y = special_vars.y
                 var coords = projections.wgs84_mercator.inverse([x, y])
@@ -877,89 +890,6 @@ class CustomJSHover(Model):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    @classmethod
-    def from_py_func(cls, code):
-        ''' Create a ``CustomJSHover`` instance from a Python functions. The
-        function is translated to JavaScript using PScript.
-
-        The python functions must have no positional arguments. It is
-        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
-        arguments to the functions.
-
-        The ``code`` function namespace will contain the variable ``value``
-        (the untransformed value) at render time as well as ``format`` and
-        ``special_vars`` as described in the class description.
-
-        Args:
-            code (function) : a scalar function to transform a single ``value``
-
-        Returns:
-            CustomJSHover
-
-        '''
-        from bokeh.util.deprecation import deprecated
-        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use CustomJSHover directly instead.")
-
-        if not isinstance(code, FunctionType):
-            raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
-
-        pscript = import_required('pscript',
-                                  'To use Python functions for CustomJSHover, you need PScript ' +
-                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
-
-        def pscript_compile(code):
-            sig = signature(code)
-
-            all_names, default_values = get_param_info(sig)
-
-            if len(all_names) - len(default_values) != 0:
-                raise ValueError("Function may only contain keyword arguments.")
-
-            if default_values and not any(isinstance(value, Model) for value in default_values):
-                raise ValueError("Default value must be a Bokeh Model.")
-
-            func_kwargs = dict(zip(all_names, default_values))
-
-            # Wrap the code attr in a function named `code` and call it
-            # with arguments that match the `args` attr
-            code = pscript.py2js(code, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
-            return code, func_kwargs
-
-        jsfunc, func_kwargs = pscript_compile(code)
-
-        return cls(code=jsfunc, args=func_kwargs)
-
-    @classmethod
-    def from_coffeescript(cls, code, args={}):
-        ''' Create a CustomJSHover instance from a CoffeeScript snippet. The
-        function bodies are translated to JavaScript functions using node and
-        therefore require return statements.
-
-        The ``code`` snippet namespace will contain the variable ``value`` (the
-        untransformed value) at render time as well as ``special_vars`` and
-        ``format`` as described in the class description.
-
-        Example:
-
-        .. code-block:: coffeescript
-
-            formatter = CustomJSHover.from_coffeescript("return value + " total")
-
-        Args:
-            code (str) :
-                A coffeescript snippet to transform a single ``value`` value
-
-        Returns:
-            CustomJSHover
-
-        '''
-        compiled = nodejs_compile(code, lang="coffeescript", file="???")
-        if "error" in compiled:
-            raise CompilationError(compiled.error)
-
-        return cls(code=compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made available
@@ -1001,7 +931,7 @@ class CustomJSHover(Model):
     """)
 
 class HoverTool(Inspection):
-    ''' *toolbar icon*: |crosshair_icon|
+    ''' *toolbar icon*: |hover_icon|
 
     The hover tool is a passive inspector tool. It is generally on at all
     times, but can be configured in the inspector's menu associated with the
@@ -1054,6 +984,7 @@ class HoverTool(Inspection):
             * patch
             * quadratic
             * ray
+            * step
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
@@ -1220,7 +1151,7 @@ class HoverTool(Inspection):
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
-DEFAULT_HELP_URL = "https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools"
+DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"
 
 class HelpTool(Action):
     ''' A button tool to provide a "help" link to users.

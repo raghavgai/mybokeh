@@ -11,7 +11,8 @@ import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
-import { isArray, isTypedArray } from "core/util/types"
+import {isArray, isTypedArray} from "core/util/types"
+import {unreachable} from "core/util/assert"
 
 export interface MultiPolygonsData extends GlyphData {
   _xs: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
@@ -51,7 +52,7 @@ export class MultiPolygonsView extends GlyphView {
     const points = []
     for (let i = 0, end = this._xs.length; i < end; i++) {
       for (let j = 0, endj = this._xs[i].length; j < endj; j++) {
-        if (this._xs[i][j].length > 1 ) {
+        if (this._xs[i][j].length > 1) {
           for (let k = 1, endk = this._xs[i][j].length; k < endk; k++) {
             const xs = this._xs[i][j][k]  // only use holes
             const ys = this._ys[i][j][k]  // only use holes
@@ -193,7 +194,7 @@ export class MultiPolygonsView extends GlyphView {
       }
     }
 
-    throw new Error("unreachable code")
+    unreachable()
   }
 
   scentery(i: number, sx: number, sy: number): number {
@@ -206,12 +207,12 @@ export class MultiPolygonsView extends GlyphView {
       const sxs = this.sxs[i]
       const sys = this.sys[i]
       for (let j = 0, end = sxs.length; j < end; j++) {
-      if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
-        return this._get_snap_coord(sys[j][0])
+        if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
+          return this._get_snap_coord(sys[j][0])
       }
     }
 
-    throw new Error("unreachable code")
+    unreachable()
   }
 
   map_data(): void {
@@ -273,11 +274,10 @@ export class MultiPolygons extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_MultiPolygons(): void {
     this.prototype.default_view = MultiPolygonsView
 
     this.coords([['xs', 'ys']])
     this.mixins(['line', 'fill', 'hatch'])
   }
 }
-MultiPolygons.initClass()

@@ -1,13 +1,12 @@
 """ The LaTex example was derived from: http://matplotlib.org/users/usetex.html
 """
+import numpy as np
+from scipy.special import jv
 
 from bokeh.models import Label
 from bokeh.palettes import Spectral4
-from bokeh.plotting import output_file, figure, show
+from bokeh.plotting import figure, output_file, show
 from bokeh.util.compiler import TypeScript
-
-import numpy as np
-from scipy.special import jv
 
 output_file('latex_extension.html')
 
@@ -65,11 +64,10 @@ export class LatexLabelView extends LabelView {
 }
 
 export class LatexLabel extends Label {
-  static initClass(): void {
+  static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
   }
 }
-LatexLabel.initClass()
 """)
 
 p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,
@@ -79,7 +77,7 @@ p.x_range.range_padding = 0
 x = np.arange(0.0, 20.0, 0.02)
 
 for i, n in enumerate([0, 1, 4, 7]):
-    p.line(x, jv(n, x), line_width=3, color=Spectral4[i], alpha=0.8, legend="𝜈=%d" % n)
+    p.line(x, jv(n, x), line_width=3, color=Spectral4[i], alpha=0.8, legend_label="𝜈=%d" % n)
 
 
 text = (r"\text{Bessel Functions of the First Kind: }" +

@@ -11,22 +11,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from .bases import ParameterizedProperty
-from .primitive import Int, Float
+from .primitive import Float, Int
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,6 +32,7 @@ __all__ = (
     'Interval',
     'NonNegativeInt',
     'Percent',
+    'PositiveInt',
     'Size',
 )
 
@@ -49,10 +44,20 @@ class NonNegativeInt(Int):
     """ Accept non-negative integers. """
 
     def validate(self, value, detail=True):
-        super(NonNegativeInt, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or value >= 0):
             raise ValueError("expected non-negative integer, got %r" % (value))
+
+class PositiveInt(Int):
+    """ Accept positive integers. """
+
+    def validate(self, value, detail=True):
+        super(PositiveInt, self).validate(value, detail)
+
+        if not (value is None or value > 0):
+            raise ValueError("expected positive integer, got %r" % (value))
+
 
 class Interval(ParameterizedProperty):
     ''' Accept numeric values that are contained within a given interval.
@@ -99,7 +104,7 @@ class Interval(ParameterizedProperty):
         self.interval_type.validate(end)
         self.start = start
         self.end = end
-        super(Interval, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def __str__(self):
         return "%s(%s, %r, %r)" % (self.__class__.__name__, self.interval_type, self.start, self.end)
@@ -109,7 +114,7 @@ class Interval(ParameterizedProperty):
         return [self.interval_type]
 
     def validate(self, value, detail=True):
-        super(Interval, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
             msg = "" if not detail else "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
@@ -136,7 +141,7 @@ class Byte(Interval):
 
     '''
     def __init__(self, default=0, help=None):
-        super(Byte, self).__init__(Int, 0, 255, default=default, help=help)
+        super().__init__(Int, 0, 255, default=default, help=help)
 
 class Size(Float):
     ''' Accept non-negative numeric values.
@@ -179,7 +184,7 @@ class Size(Float):
 
     '''
     def validate(self, value, detail=True):
-        super(Size, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or 0.0 <= value):
             msg = "" if not detail else "expected a non-negative number, got %r" % value
@@ -231,7 +236,7 @@ class Percent(Float):
 
     '''
     def validate(self, value, detail=True):
-        super(Percent, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or 0.0 <= value <= 1.0):
             msg = "" if not detail else "expected a value in range [0, 1], got %r" % value

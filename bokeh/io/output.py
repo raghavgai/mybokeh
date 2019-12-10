@@ -11,18 +11,12 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from .notebook import run_notebook_hook
@@ -42,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
+def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 

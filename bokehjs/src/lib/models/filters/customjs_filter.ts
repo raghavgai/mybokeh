@@ -10,7 +10,6 @@ export namespace CustomJSFilter {
   export type Props = Filter.Props & {
     args: p.Property<{[key: string]: unknown}>
     code: p.Property<string>
-    use_strict: p.Property<boolean>
   }
 }
 
@@ -23,11 +22,10 @@ export class CustomJSFilter extends Filter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CustomJSFilter(): void {
     this.define<CustomJSFilter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
-      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -40,13 +38,12 @@ export class CustomJSFilter extends Filter {
   }
 
   get func(): Function {
-    const code = this.use_strict ? use_strict(this.code) : this.code
-    return new Function(...this.names, "source", "require", "exports", code)
+    const code = use_strict(this.code)
+    return new Function(...this.names, "source", code)
   }
 
   compute_indices(source: DataSource): number[] | null {
-    this.filter = this.func(...this.values, source, require, {})
+    this.filter = this.func(...this.values, source)
     return super.compute_indices(source)
   }
 }
-CustomJSFilter.initClass()

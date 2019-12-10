@@ -9,8 +9,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -20,10 +18,6 @@ import pytest ; pytest
 # Standard library imports
 import os
 from os.path import join, splitext
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Tests

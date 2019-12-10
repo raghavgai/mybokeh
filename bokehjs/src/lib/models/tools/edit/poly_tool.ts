@@ -65,7 +65,6 @@ export namespace PolyTool {
     renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
     vertex_renderer: p.Property<(GlyphRenderer & HasXYGlyph)>
   }
-
 }
 
 export interface PolyTool extends PolyTool.Attrs {}
@@ -79,7 +78,7 @@ export class PolyTool extends EditTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PolyTool(): void {
     this.prototype.default_view = PolyToolView
 
     this.define<PolyTool.Props>({
@@ -87,4 +86,3 @@ export class PolyTool extends EditTool {
     })
   }
 }
-PolyTool.initClass()

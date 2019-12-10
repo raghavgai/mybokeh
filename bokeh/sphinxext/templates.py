@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -25,8 +23,6 @@ from os.path import dirname, join
 
 # External imports
 from jinja2 import Environment, FileSystemLoader
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +41,6 @@ __all__ = (
     'OPTIONS_DETAIL',
     'PALETTE_DETAIL',
     'PALETTE_GROUP_DETAIL',
-    'PLOT_PAGE',
     'PROP_DETAIL',
 )
 
@@ -92,9 +87,9 @@ PALETTE_DETAIL = _env.get_template("palette_detail.html")
 
 PALETTE_GROUP_DETAIL = _env.get_template("palette_group_detail.html")
 
-PLOT_PAGE = _env.get_template("plot_page.rst")
-
 PROP_DETAIL = _env.get_template("prop_detail.rst")
+
+SETTINGS_DETAIL = _env.get_template("settings_detail.rst")
 
 #-----------------------------------------------------------------------------
 # Code

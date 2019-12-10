@@ -1,12 +1,9 @@
-from __future__ import print_function
-
-from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.callbacks import CustomJS
-from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
+from bokeh.models import (Circle, ColumnDataSource, CustomJS, LinearAxis,
+                          PanTool, Plot, TapTool, WheelZoomTool,)
 from bokeh.resources import INLINE
+from bokeh.util.browser import view
 
 source = ColumnDataSource(
     data = dict(

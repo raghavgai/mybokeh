@@ -13,9 +13,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -24,8 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-
-# External imports
 
 # Bokeh imports
 from .primitive import String
@@ -82,13 +78,13 @@ class Regex(String):
     '''
     def __init__(self, regex, default=None, help=None):
         self.regex = re.compile(regex)
-        super(Regex, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
     def validate(self, value, detail=True):
-        super(Regex, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or self.regex.match(value) is not None):
             msg = "" if not detail else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)

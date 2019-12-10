@@ -63,19 +63,12 @@ Enumerations can be easily documented in Sphinx documentation with the
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
-from six import string_types
 
 # Bokeh imports
 from .. import colors, palettes
@@ -124,7 +117,6 @@ __all__ = (
     'RoundingFunction',
     'SizingMode',
     'SizingPolicy',
-    'SliderCallbackPolicy',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
@@ -200,7 +192,7 @@ def enumeration(*values, **kwargs):
             Whether validation should consider case or not (default: True)
 
         quote (bool, optional):
-            Whther values should be quoted in the string representations
+            Whether values should be quoted in the string representations
             (default: False)
 
     Raises:
@@ -210,7 +202,7 @@ def enumeration(*values, **kwargs):
         Enumeration
 
     '''
-    if not (values and all(isinstance(value, string_types) and value for value in values)):
+    if not (values and all(isinstance(value, str) and value for value in values)):
         raise ValueError("expected a non-empty sequence of strings, got %s" % values)
 
     if len(values) != len(set(values)):
@@ -390,9 +382,6 @@ SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",
 
 #: Individual sizing mode policies
 SizingPolicy = enumeration("fixed", "fit", "min", "max")
-
-#: Specify different callback policies for the slider widget
-SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
 
 #: Specify sorting directions
 SortDirection = enumeration("ascending", "descending")

@@ -2,11 +2,10 @@ from bokeh.io import show
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
 from bokeh.plotting import figure
-
-from bokeh.sampledata.us_counties import data as counties
 from bokeh.sampledata.unemployment import data as unemployment
+from bokeh.sampledata.us_counties import data as counties
 
-palette.reverse()
+palette = tuple(reversed(palette))
 
 counties = {
     code: county for code, county in counties.items() if county["state"] == "tx"

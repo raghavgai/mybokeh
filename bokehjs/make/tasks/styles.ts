@@ -1,10 +1,10 @@
-import * as lesscss from "less"
+import lesscss from "less"
 
 import chalk from "chalk"
 import {argv} from "yargs"
 
 import {task, log} from "../task"
-import {scan, read, write, rename} from "../fs"
+import {scan, read, write, rename} from "@compiler/sys"
 import * as paths from "../paths"
 
 task("styles:compile", async () => {
@@ -31,13 +31,6 @@ task("styles:compile", async () => {
   }
 })
 
-task("styles:phony", async () => {
-  for (const css of paths.css.sources) {
-    write(css, "")
-    write(rename(css, {ext: ".min.css"}), "")
-  }
-})
-
-task("styles:build", ["styles:compile", "styles:phony"])
+task("styles:build", ["styles:compile"])
 
 task("styles", ["styles:build"])

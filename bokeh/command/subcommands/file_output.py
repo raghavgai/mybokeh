@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,15 +19,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
 import argparse
 import io
-
-# External imports
+from abc import abstractmethod
 
 # Bokeh imports
-from bokeh.util.string import decode_utf8
-
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die
 
@@ -166,10 +160,10 @@ class FileOutputSubcommand(Subcommand):
         '''
         contents = self.file_contents(args, doc)
         if filename == '-':
-            print(decode_utf8(contents))
+            print(contents)
         else:
             with io.open(filename, "w", encoding="utf-8") as file:
-                file.write(decode_utf8(contents))
+                file.write(contents)
         self.after_write_file(args, filename, doc)
 
     # can be overridden optionally

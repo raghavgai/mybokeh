@@ -1,7 +1,8 @@
 from bokeh.io import show
-from bokeh.models import ColumnDataSource, CustomJS, ColorPicker
+from bokeh.layouts import column, row
+from bokeh.models import ColorPicker, ColumnDataSource, CustomJS
 from bokeh.plotting import Figure
-from bokeh.layouts import row, widgetbox
+
 cds = ColumnDataSource(data=dict(x=(0, 1), y=(0, 1)))
 
 p = Figure(x_range=(0, 1), y_range=(0, 1))
@@ -12,4 +13,4 @@ line.glyph.line_color = cb_obj.color
 """)
 w.js_on_change('color', cb)
 
-show(row([widgetbox(w, width=100), p]))
+show(row(column(w, width=100), p))

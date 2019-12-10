@@ -1,10 +1,12 @@
 import colorsys
+
 import yaml
 
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJS, Slider
-from bokeh.plotting import figure, output_file, show, curdoc
+from bokeh.plotting import curdoc, figure, output_file, show
 from bokeh.themes import Theme
+
 
 # for plot 2: create colour spectrum of resolution N and brightness I, return as list of decimal RGB value tuples
 def generate_color_range(N, I):
@@ -121,7 +123,7 @@ attrs:
         major_label_text_color: null
         major_tick_line_color: null
         minor_tick_line_color: null
-"""))
+""", Loader=yaml.SafeLoader))
 
 layout = row(
     column(red_slider, green_slider, blue_slider),

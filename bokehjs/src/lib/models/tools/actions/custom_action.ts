@@ -39,13 +39,13 @@ export class CustomAction extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CustomAction(): void {
     this.prototype.default_view = CustomActionView
 
     this.define<CustomAction.Props>({
       action_tooltip: [ p.String, 'Perform a Custom Action'],
       callback:       [ p.Any                              ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-      icon:           [ p.String,                          ],
+      icon:           [ p.String                           ],
     })
   }
 
@@ -57,4 +57,3 @@ export class CustomAction extends ActionTool {
     return this.action_tooltip
   }
 }
-CustomAction.initClass()

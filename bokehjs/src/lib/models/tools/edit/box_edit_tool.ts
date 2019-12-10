@@ -1,5 +1,5 @@
 import {Keys} from "core/dom"
-import {GestureEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_events"
+import {PanEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
 import {Rect} from "../../glyphs/rect"
@@ -49,7 +49,7 @@ export class BoxEditToolView extends EditToolView {
     const yscale = frame.yscales[renderer.y_range_name]
     const [x0, x1] = xscale.r_invert(sx0, sx1)
     const [y0, y1] = yscale.r_invert(sy0, sy1)
-    const [x, y] = [(x0+x1)/2., (y0+y1)/2.]
+    const [x, y] = [(x0+x1)/2, (y0+y1)/2]
     const [w, h] = [x1-x0, y1-y0]
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
     const [wkey, hkey] = [glyph.width.field, glyph.height.field]
@@ -100,7 +100,7 @@ export class BoxEditToolView extends EditToolView {
     this._update_box(ev, false, false)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     if (ev.shiftKey) {
       if (this._draw_basepoint != null)
         return
@@ -114,7 +114,7 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan(ev: GestureEvent, append: boolean = false, emit: boolean = false): void {
+  _pan(ev: PanEvent, append: boolean = false, emit: boolean = false): void {
     if (ev.shiftKey) {
       if (this._draw_basepoint == null)
         return
@@ -126,7 +126,7 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     this._pan(ev, false, true)
     if (ev.shiftKey) {
       this._draw_basepoint = null
@@ -159,7 +159,7 @@ export class BoxEditTool extends EditTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BoxEditTool(): void {
     this.prototype.default_view = BoxEditToolView
 
     this.define<BoxEditTool.Props>({
@@ -173,4 +173,3 @@ export class BoxEditTool extends EditTool {
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 1
 }
-BoxEditTool.initClass()

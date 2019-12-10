@@ -8,32 +8,43 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-from six import string_types
-
 # Bokeh imports
-from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
-from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
+from ..core.properties import (
+    Any,
+    Auto,
+    Either,
+    Enum,
+    Instance,
+    Int,
+    List,
+    Seq,
+    String,
+    Tuple,
+)
+from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool
 from ..models import glyphs as _glyphs
 from ..models import markers as _markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
-from ..util.options import Options
 from ..transform import linear_cmap
+from ..util.options import Options
 from .helpers import (
-    _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
-    _glyph_function, _process_active_tools, _single_stack, _double_stack, _graph,
+    _double_stack,
+    _get_range,
+    _get_scale,
+    _glyph_function,
+    _graph,
+    _process_active_tools,
+    _process_axis_and_grid,
+    _process_tools_arg,
+    _single_stack,
 )
 
 #-----------------------------------------------------------------------------
@@ -147,10 +158,10 @@ class Figure(Plot):
         opts = FigureOptions(kw)
 
         title = kw.get("title", None)
-        if isinstance(title, string_types):
+        if isinstance(title, str):
             kw['title'] = Title(text=title)
 
-        super(Figure, self).__init__(*arg, **kw)
+        super().__init__(*arg, **kw)
 
         self.x_range = _get_range(opts.x_range)
         self.y_range = _get_range(opts.y_range)
@@ -781,13 +792,13 @@ Examples:
         .. note::
             When passing ``marker="circle"`` it is also possible to supply a
             ``radius`` value in data-space units. When configuring marker type
-            from a data source column, *all* markers incuding circles may only
+            from a data source column, *all* markers including circles may only
             be configured with ``size`` in screen units.
 
         '''
         marker_type = kwargs.pop("marker", "circle")
 
-        if isinstance(marker_type, string_types) and marker_type in _MARKER_SHORTCUTS:
+        if isinstance(marker_type, str) and marker_type in _MARKER_SHORTCUTS:
             marker_type = _MARKER_SHORTCUTS[marker_type]
 
         # The original scatter implementation allowed circle scatters to set a

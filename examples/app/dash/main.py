@@ -6,13 +6,13 @@ import pandas as pd
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, DataTable, RangeTool, TableColumn, \
-                         NumberFormatter, StringFormatter
+from bokeh.models import (ColumnDataSource, DataTable, NumberFormatter,
+                          RangeTool, StringFormatter, TableColumn,)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
-from bokeh.transform import cumsum
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 from bokeh.sampledata.stocks import AAPL
+from bokeh.transform import cumsum
 
 # Timeseries
 
@@ -61,7 +61,7 @@ region = figure(plot_height=350, toolbar_location=None, outline_line_color=None,
 
 region.annular_wedge(x=-0, y=1, inner_radius=0.2, outer_radius=0.32,
                   start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
-                  line_color="white", fill_color='color', legend='country', source=data)
+                  line_color="white", fill_color='color', legend_group='country', source=data)
 
 region.axis.axis_label=None
 region.axis.visible=False

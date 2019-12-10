@@ -1,22 +1,27 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+# Standard library imports
 import os
-import time
-import pytest
-import subprocess
 import platform
 import signal
-
+import subprocess
+import time
 from os.path import basename, dirname, split
 
-import six
+# External imports
+import pytest
 
-from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
+# Bokeh imports
 from bokeh._testing.util.screenshot import run_in_chrome
-
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
-from bokeh.util.terminal import info, fail, ok, red, warn, white
+from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
+from bokeh.util.terminal import fail, info, ok, red, warn, white
 
 is_windows = platform.system() == "Windows"
 
@@ -59,12 +64,8 @@ def test_file_examples(file_example, example, config, report):
 
 @pytest.mark.examples
 def test_server_examples(server_example, example, config, report, bokeh_server):
-    # mitigate some weird interaction isolated to simple ids, py2.7,
-    # "push_session" server usage, and TravisCI
-    if six.PY2: os.environ['BOKEH_SIMPLE_IDS'] = 'no'
     app = build_single_handler_application(example.path)
     doc = app.create_document()
-    if six.PY2: del os.environ['BOKEH_SIMPLE_IDS']
 
     # remove all next-tick, periodic, and timeout callbacks
     for session_callback in doc.session_callbacks:

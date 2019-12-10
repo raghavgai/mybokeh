@@ -23,9 +23,7 @@ There are two public classes in this module:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -48,9 +46,8 @@ from ..application import Application
 from ..core.properties import Bool, Int, List, String
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
-
+from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_whitelist
-from .tornado import BokehTornado, DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -383,6 +380,13 @@ class Server(BaseServer):
             http_server_kwargs = {}
         http_server_kwargs.setdefault('xheaders', opts.use_xheaders)
 
+        if opts.ssl_certfile:
+            log.info("Configuring for SSL termination")
+            import ssl
+            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
+            http_server_kwargs['ssl_options'] = context
+
         sockets, self._port = bind_sockets(self.address, self.port)
 
         extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
@@ -408,7 +412,7 @@ class Server(BaseServer):
         if io_loop is None:
             io_loop = IOLoop.current()
 
-        super(Server, self).__init__(io_loop, tornado_app, http_server)
+        super().__init__(io_loop, tornado_app, http_server)
 
     @property
     def index(self):
@@ -492,10 +496,20 @@ class _ServerOpts(Options):
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
     """)
 
+    ssl_certfile = String(default=None, help="""
+    The path to a certificate file for SSL termination.
+    """)
+
+    ssl_keyfile = String(default=None, help="""
+    The path to a private key file for SSL termination.
+    """)
+
+    ssl_password = String(default=None, help="""
+    A password to decrypt the SSL keyfile, if necessary.
+    """)
+
     websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
     Set the Tornado ``websocket_max_message_size`` value.
-
-    NOTE: This setting has effect ONLY for Tornado>=4.5
     """)
 
 #-----------------------------------------------------------------------------

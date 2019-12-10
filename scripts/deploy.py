@@ -1,9 +1,12 @@
+# Standard library imports
 import argparse
 import json
-from os.path import join
 import re
-from subprocess import CalledProcessError, check_output, STDOUT
 import sys
+from os.path import join
+from subprocess import STDOUT, CalledProcessError, check_output
+
+# External imports
 from packaging.version import Version as V
 
 try:
@@ -141,13 +144,6 @@ def confirm(msg):
 # Check functions
 #
 #--------------------------------------
-
-def check_py3():
-    if sys.version_info.major == 3:
-        passed("Running Python 3.x")
-    else:
-        failed("This script requires Python 3.x")
-
 
 def check_git():
     try:
@@ -353,21 +349,6 @@ def update_bokehjs_versions():
             passed("Updated version from %r to %r in file %r" % (CONFIG.last_any_version, CONFIG.new_version, filename))
             commit(filename, CONFIG.new_version)
 
-def update_docs_versions():
-
-    # Update all_versions.txt
-
-    filename = 'sphinx/source/all_versions.txt'
-    path = join(CONFIG.top_dir, filename)
-    try:
-        with open(path, 'a') as f:
-            f.write("{version}\n".format(version=CONFIG.new_version))
-    except Exception as e:
-        failed("Could not write new version to file %r" % filename, str(e).split("\n"))
-    else:
-        passed("Appended version %r to %r" % (CONFIG.new_version, filename))
-        commit(filename, CONFIG.new_version)
-
 def update_changelog():
     try:
         out = run("python issues.py -p %s -r %s" % (CONFIG.last_full_version, CONFIG.new_version))
@@ -470,7 +451,6 @@ if __name__ == '__main__':
 
     print("!!! Running pre-checks for release deploy\n")
 
-    check_py3()
     check_git()
     check_maintainers()
     if not args.dry_run:
@@ -522,7 +502,6 @@ if __name__ == '__main__':
     if V(CONFIG.new_version).is_prerelease:
         print(blue("[SKIP] ") + "Not updating docs version or change log for pre-releases")
     else:
-        update_docs_versions()
         update_changelog()
 
     if CONFIG.problems:

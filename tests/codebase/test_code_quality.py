@@ -9,8 +9,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,13 +17,9 @@ import pytest ; pytest
 
 # Standard library imports
 import io
-from os import pardir
-from os.path import split, join, abspath, relpath, basename, splitext
 import subprocess
-
-# External imports
-
-# Bokeh imports
+from os import pardir
+from os.path import abspath, basename, join, relpath, split, splitext
 
 #-----------------------------------------------------------------------------
 # Tests

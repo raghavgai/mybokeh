@@ -13,9 +13,7 @@ and with options for "auto sizing".
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -25,17 +23,26 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from collections import Counter
 
-# External imports
-
 # Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
-from ..core.properties import (Bool, Datetime, Either, Enum, Float, Instance,
-                               List, MinMaxBounds, Seq, String, TimeDelta, Tuple)
+from ..core.properties import (
+    Bool,
+    Datetime,
+    Either,
+    Enum,
+    Float,
+    Instance,
+    List,
+    MinMaxBounds,
+    Seq,
+    String,
+    TimeDelta,
+    Tuple,
+)
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
-
 from .callbacks import Callback
 from .renderers import Renderer
 
@@ -138,7 +145,7 @@ class Range1d(Range):
             kwargs['start'] = args[0]
             kwargs['end'] = args[1]
 
-        super(Range1d, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 @abstract
@@ -258,10 +265,15 @@ class DataRange1d(DataRange):
     (if used with a log axis, default_span is in powers of 10).
     """)
 
+    only_visible = Bool(default=False, help="""
+    If True, renderers that that are not visible will be excluded from automatic
+    bounds computations.
+    """)
+
     def __init__(self, *args, **kwargs):
         if kwargs.get('follow') is not None:
             kwargs['bounds'] = None
-        super(DataRange1d, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class FactorRange(Range):
@@ -444,7 +456,7 @@ class FactorRange(Range):
             raise ValueError("'factors' keyword cannot be used with positional arguments")
         elif args:
             kwargs['factors'] = list(args)
-        super(FactorRange, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @error(DUPLICATE_FACTORS)
     def _check_duplicate_factors(self):

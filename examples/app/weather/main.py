@@ -1,11 +1,11 @@
-from os.path import join, dirname
 import datetime
+from os.path import dirname, join
 
 import pandas as pd
 from scipy.signal import savgol_filter
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, column
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, DataRange1d, Select
 from bokeh.palettes import Blues4
 from bokeh.plotting import figure
@@ -33,11 +33,11 @@ def make_plot(source, title):
     plot.title.text = title
 
     plot.quad(top='record_max_temp', bottom='record_min_temp', left='left', right='right',
-              color=Blues4[2], source=source, legend="Record")
+              color=Blues4[2], source=source, legend_label="Record")
     plot.quad(top='average_max_temp', bottom='average_min_temp', left='left', right='right',
-              color=Blues4[1], source=source, legend="Average")
+              color=Blues4[1], source=source, legend_label="Average")
     plot.quad(top='actual_max_temp', bottom='actual_min_temp', left='left', right='right',
-              color=Blues4[0], alpha=0.5, line_color="black", source=source, legend="Actual")
+              color=Blues4[0], alpha=0.5, line_color="black", source=source, legend_label="Actual")
 
     # fixed attributes
     plot.xaxis.axis_label = None

@@ -40,7 +40,10 @@ export abstract class LayoutDOMView extends DOMView {
     super.initialize()
     this.el.style.position = this.is_root ? "relative" : "absolute"
     this._child_views = {}
-    this.build_child_views()
+  }
+
+  async lazy_initialize(): Promise<void> {
+    await this.build_child_views()
   }
 
   remove(): void {
@@ -80,10 +83,10 @@ export abstract class LayoutDOMView extends DOMView {
       p.width_policy, p.height_policy, p.sizing_mode,
       p.aspect_ratio,
       p.visible,
-      p.background,
     ], () => this.invalidate_layout())
 
     this.on_change([
+      p.background,
       p.css_classes,
     ], () => this.invalidate_render())
   }
@@ -106,8 +109,8 @@ export abstract class LayoutDOMView extends DOMView {
     return this.child_models.map((child) => this._child_views[child.id])
   }
 
-  build_child_views(): void {
-    build_views(this._child_views, this.child_models, {parent: this})
+  async build_child_views(): Promise<void> {
+    await build_views(this._child_views, this.child_models, {parent: this})
   }
 
   render(): void {
@@ -170,8 +173,8 @@ export abstract class LayoutDOMView extends DOMView {
     return this
   }
 
-  rebuild(): void {
-    this.build_child_views()
+  async rebuild(): Promise<void> {
+    await this.build_child_views()
     this.invalidate_render()
   }
 
@@ -266,8 +269,6 @@ export abstract class LayoutDOMView extends DOMView {
             width_policy = "max"
             height_policy = "max"
             break
-          default:
-            throw new Error("unreachable")
         }
       }
     }
@@ -399,7 +400,7 @@ export abstract class LayoutDOM extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_LayoutDOM(): void {
     this.define<LayoutDOM.Props>({
       width:         [ p.Number,     null         ],
       height:        [ p.Number,     null         ],
@@ -420,4 +421,3 @@ export abstract class LayoutDOM extends Model {
     })
   }
 }
-LayoutDOM.initClass()

@@ -56,21 +56,12 @@ event object that triggered the callback.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
-from .util.future import with_metaclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -93,9 +84,13 @@ __all__ = (
     'Pinch',
     'PinchEnd',
     'PinchStart',
+    'Rotate',
+    'RotateEnd',
+    'RotateStart',
     'PlotEvent',
     'PointEvent',
     'Press',
+    'PressUp',
     'Reset',
     'SelectionGeometry',
     'Tap',
@@ -105,34 +100,26 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-_CONCRETE_EVENT_CLASSES = dict()
-
-class _MetaEvent(type):
-    ''' Metaclass used to keep track of all classes subclassed from Event.
-
-    All Concrete Event classes (i.e. not "abstract" event base classes with
-    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
-    is used to decode event instances from JSON.
-
-    '''
-    def __new__(cls, clsname, bases, attrs):
-        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
-        if newclass.event_name is not None:
-            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
-        return newclass
+_CONCRETE_EVENT_CLASSES = {}
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Event(with_metaclass(_MetaEvent, object)):
+class Event(object):
     ''' Base class for all Bokeh events.
 
     This base class is not typically useful to instantiate on its own.
 
     '''
-    _event_classes = []
-    event_name = None
+    event_name: str
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+
+        if hasattr(cls, "event_name"):
+            _CONCRETE_EVENT_CLASSES[cls.event_name] = cls
 
     def __init__(self, model):
         ''' Create a new base event.
@@ -196,7 +183,7 @@ class ButtonClick(Event):
         if model is not None and not isinstance(model, AbstractButton):
             msg ='{clsname} event only applies to button models'
             raise ValueError(msg.format(clsname=self.__class__.__name__))
-        super(ButtonClick, self).__init__(model=model)
+        super().__init__(model=model)
 
 class MenuItemClick(Event):
     ''' Announce a button click event on a Bokeh menu item.
@@ -206,19 +193,17 @@ class MenuItemClick(Event):
 
     def __init__(self, model, item=None):
         self.item = item
-        super(MenuItemClick, self).__init__(model=model)
+        super().__init__(model=model)
 
 class PlotEvent(Event):
     ''' The base class for all events applicable to Plot models.
 
     '''
-
     def __init__(self, model):
         from .models import Plot
         if model is not None and not isinstance(model, Plot):
-            msg ='{clsname} event only applies to Plot models'
-            raise ValueError(msg.format(clsname=self.__class__.__name__))
-        super(PlotEvent, self).__init__(model=model)
+            raise ValueError(f"{self.__class__.__name__} event only applies to Plot models")
+        super().__init__(model)
 
 class LODStart(PlotEvent):
     ''' Announce the start of "interactive level-of-detail" mode on a plot.
@@ -259,7 +244,7 @@ class SelectionGeometry(PlotEvent):
     def __init__(self, model, geometry=None, final=True):
         self.geometry = geometry
         self.final = final
-        super(SelectionGeometry, self).__init__(model=model)
+        super().__init__(model=model)
 
 class Reset(PlotEvent):
     ''' Announce a button click event on a plot ``ResetTool``.
@@ -268,7 +253,7 @@ class Reset(PlotEvent):
     event_name = "reset"
 
     def __init__(self, model):
-        super(Reset, self).__init__(model=model)
+        super().__init__(model=model)
 
 class PointEvent(PlotEvent):
     ''' Base class for UI events associated with a specific (x,y) point.
@@ -284,14 +269,12 @@ class PointEvent(PlotEvent):
     the HTML canvas.
 
     '''
-    event_name = None
-
     def __init__(self, model, sx=None, sy=None, x=None, y=None):
         self.sx = sx
         self.sy = sy
         self.x = x
         self.y = y
-        super(PointEvent, self).__init__(model=model)
+        super().__init__(model=model)
 
 class Tap(PointEvent):
     ''' Announce a tap or click event on a Bokeh plot.
@@ -328,6 +311,18 @@ class Press(PointEvent):
 
     '''
     event_name = 'press'
+
+class PressUp(PointEvent):
+    ''' Announce a pressup event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    '''
+    event_name = 'pressup'
 
 class MouseEnter(PointEvent):
     ''' Announce a mouse enter event onto a Bokeh plot.
@@ -398,7 +393,7 @@ class MouseWheel(PointEvent):
 
     def __init__(self, model, delta=None, **kwargs):
         self.delta = delta
-        super(MouseWheel, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class Pan(PointEvent):
     ''' Announce a pan event on a Bokeh plot.
@@ -419,7 +414,7 @@ class Pan(PointEvent):
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.direction = direction
-        super(Pan, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class PanEnd(PointEvent):
     ''' Announce the end of a pan event on a Bokeh plot.
@@ -463,7 +458,7 @@ class Pinch(PointEvent):
 
     def __init__(self, model, scale=None, **kwargs):
         self.scale = scale
-        super(Pinch, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class PinchEnd(PointEvent):
     ''' Announce the end of a pinch event on a Bokeh plot.
@@ -494,6 +489,56 @@ class PinchStart(PointEvent):
 
     '''
     event_name = 'pinchstart'
+
+class Rotate(PointEvent):
+    ''' Announce a rotate event on a Bokeh plot.
+
+    Attributes:
+        rotation (float) : the rotation that has been done (in deg)
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotate'
+
+    def __init__(self, model, rotation=None, **kwargs):
+        self.rotation = rotation
+        super(Rotate, self).__init__(model, **kwargs)
+
+class RotateEnd(PointEvent):
+    ''' Announce the end of a rotate event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotateend'
+
+class RotateStart(PointEvent):
+    ''' Announce the start of a rotate event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotatestart'
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -1,5 +1,5 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView, SVGRenderingContext2D} from "../canvas/canvas"
+import {Canvas, CanvasView} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
@@ -16,8 +16,8 @@ import {ToolbarPanel} from "../annotations/toolbar_panel"
 import {Reset} from "core/bokeh_events"
 import {Arrayable, Rect, Interval} from "core/types"
 import {Signal0} from "core/signaling"
-import {build_views, remove_views} from "core/build_views"
-import /*type*/ {UIEvents} from "core/ui_events"
+import {build_view, build_views, remove_views} from "core/build_views"
+import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
@@ -31,24 +31,6 @@ import {HStack, VStack} from "core/layout/alignments"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
-
-// Notes on WebGL support:
-// Glyps can be rendered into the original 2D canvas, or in a (hidden)
-// webgl canvas that we create below. In this way, the rest of bokehjs
-// can keep working as it is, and we can incrementally update glyphs to
-// make them use GL.
-//
-// When the author or user wants to, we try to create a webgl canvas,
-// which is saved on the ctx object that gets passed around during drawing.
-// The presence (and not-being-false) of the this.glcanvas attribute is the
-// marker that we use throughout that determines whether we have gl support.
-
-export type WebGLState = {
-  canvas: HTMLCanvasElement
-  ctx: WebGLRenderingContext
-}
-
-let global_gl: WebGLState | null = null
 
 export type FrameBox = [number, number, number, number]
 
@@ -147,8 +129,6 @@ export class PlotView extends LayoutDOMView {
   protected _needs_paint: boolean = true
   protected _needs_layout: boolean = false
 
-  gl?: WebGLState
-
   force_paint: Signal0<this>
   state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
@@ -173,14 +153,6 @@ export class PlotView extends LayoutDOMView {
   /*protected*/ tool_views: {[key: string]: ToolView}
 
   protected range_update_timestamp?: number
-
-  get canvas_overlays(): HTMLElement {
-    return this.canvas_view.overlays_el
-  }
-
-  get canvas_events(): HTMLElement {
-    return this.canvas_view.events_el
-  }
 
   get is_paused(): boolean {
     return this._is_paused != null && this._is_paused !== 0
@@ -265,7 +237,6 @@ export class PlotView extends LayoutDOMView {
     this.state = {history: [], index: -1}
 
     this.canvas = new Canvas({
-      map: this.model.use_map || false,
       use_hidpi: this.model.hidpi,
       output_backend: this.model.output_backend,
     })
@@ -279,17 +250,7 @@ export class PlotView extends LayoutDOMView {
       this.model.extra_y_ranges,
     )
 
-    this.canvas_view = new this.canvas.default_view({model: this.canvas, parent: this}) as CanvasView
-
-    // If requested, try enabling webgl
-    if (this.model.output_backend == "webgl")
-      this.init_webgl()
-
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
-
-    // XXX: lazy value import to avoid touching window
-    const {UIEvents} = require("core/ui_events")
-    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
@@ -304,13 +265,18 @@ export class PlotView extends LayoutDOMView {
 
     this.renderer_views = {}
     this.tool_views = {}
+  }
 
-    this.build_renderer_views()
-    this.build_tool_views()
+  async lazy_initialize(): Promise<void> {
+    this.canvas_view = await build_view(this.canvas, {parent: this})
+    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
+
+    await this.build_renderer_views()
+    await this.build_tool_views()
 
     this.update_dataranges()
-
     this.unpause(true)
+
     logger.debug("PlotView initialized")
   }
 
@@ -464,35 +430,16 @@ export class PlotView extends LayoutDOMView {
       callback(visible)
   }
 
-  init_webgl(): void {
-    // We use a global invisible canvas and gl context. By having a global context,
-    // we avoid the limitation of max 16 contexts that most browsers have.
-    if (global_gl == null) {
-      const canvas = document.createElement('canvas')
-
-      const opts: WebGLContextAttributes = {premultipliedAlpha: true}
-      const ctx = canvas.getContext("webgl", opts) || canvas.getContext("experimental-webgl", opts)
-
-      // If WebGL is available, we store a reference to the gl canvas on
-      // the ctx object, because that's what gets passed everywhere.
-      if (ctx != null)
-        global_gl = {canvas, ctx}
-    }
-
-    if (global_gl != null)
-      this.gl = global_gl
-    else
-      logger.warn('WebGL is not supported, falling back to 2D canvas.')
-  }
-
   prepare_webgl(ratio: number, frame_box: FrameBox): void {
     // Prepare WebGL for a drawing pass
-    if (this.gl != null) {
-      const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
+    const {webgl} = this.canvas_view
+    if (webgl != null) {
       // Sync canvas size
-      this.gl.canvas.width = canvas.width
-      this.gl.canvas.height = canvas.height
-      const {ctx: gl} = this.gl
+      const {width, height} = this.canvas_view.bbox
+      const {pixel_ratio} = this.canvas_view.model
+      webgl.canvas.width = pixel_ratio*width
+      webgl.canvas.height = pixel_ratio*height
+      const {gl} = webgl
       // Clipping
       gl.enable(gl.SCISSOR_TEST)
       const [sx, sy, w, h] = frame_box
@@ -507,10 +454,11 @@ export class PlotView extends LayoutDOMView {
   }
 
   clear_webgl(): void {
-    if (this.gl != null) {
+    const {webgl} = this.canvas_view
+    if (webgl != null) {
       // Prepare GL for drawing
-      const {ctx: gl} = this.gl
-      gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
+      const {gl, canvas} = webgl
+      gl.viewport(0, 0, canvas.width, canvas.height)
       gl.clearColor(0, 0, 0, 0)
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
     }
@@ -518,14 +466,14 @@ export class PlotView extends LayoutDOMView {
 
   blit_webgl(): void {
     // This should be called when the ctx has no state except the HIDPI transform
-    const {ctx} = this.canvas_view
-    if (this.gl != null) {
+    const {ctx, webgl} = this.canvas_view
+    if (webgl != null) {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       logger.debug('drawing with WebGL')
       ctx.restore()
-      ctx.drawImage(this.gl.canvas, 0, 0)
+      ctx.drawImage(webgl.canvas, 0, 0)
       // Set back hidpi transform
       ctx.save()
       const ratio = this.canvas.pixel_ratio
@@ -867,7 +815,11 @@ export class PlotView extends LayoutDOMView {
       this.root.compute_layout()
   }
 
-  build_renderer_views(): void {
+  get_renderer_views(): RendererView[] {
+    return this.computed_renderers.map((r) => this.renderer_views[r.id])
+  }
+
+  async build_renderer_views(): Promise<void> {
     this.computed_renderers = []
 
     this.computed_renderers.push(...this.model.above)
@@ -890,16 +842,12 @@ export class PlotView extends LayoutDOMView {
       this.computed_renderers.push(...tool.synthetic_renderers)
     }
 
-    build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    await build_views(this.renderer_views, this.computed_renderers, {parent: this})
   }
 
-  get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views[r.id])
-  }
-
-  build_tool_views(): void {
+  async build_tool_views(): Promise<void> {
     const tool_models = this.model.toolbar.tools
-    const new_tool_views = build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
+    const new_tool_views = await build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
     new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
   }
 
@@ -919,8 +867,14 @@ export class PlotView extends LayoutDOMView {
       this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
-    this.connect(this.model.properties.renderers.change, () => this.build_renderer_views())
-    this.connect(this.model.toolbar.properties.tools.change, () => { this.build_renderer_views(); this.build_tool_views() })
+    this.connect(this.model.properties.renderers.change, async () => {
+      await this.build_renderer_views()
+    })
+    this.connect(this.model.toolbar.properties.tools.change, async () => {
+      await this.build_renderer_views()
+      await this.build_tool_views()
+    })
+
     this.connect(this.model.change, () => this.request_paint())
     this.connect(this.model.reset, () => this.reset())
   }
@@ -1137,37 +1091,7 @@ export class PlotView extends LayoutDOMView {
   }
 
   save(name: string): void {
-    switch (this.model.output_backend) {
-      case "canvas":
-      case "webgl": {
-        const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
-        if (canvas.msToBlob != null) {
-          const blob = canvas.msToBlob()
-          window.navigator.msSaveBlob(blob, name)
-        } else {
-          const link = document.createElement('a')
-          link.href = canvas.toDataURL('image/png')
-          link.download = name + ".png"
-          link.target = "_blank"
-          link.dispatchEvent(new MouseEvent('click'))
-        }
-        break
-      }
-      case "svg": {
-        const ctx = this.canvas_view._ctx as SVGRenderingContext2D
-        const svg = ctx.getSerializedSvg(true)
-        const svgblob = new Blob([svg], {type:'text/plain'})
-        const downloadLink = document.createElement("a")
-        downloadLink.download = name + ".svg"
-        downloadLink.innerHTML = "Download svg"
-        downloadLink.href = window.URL.createObjectURL(svgblob)
-        downloadLink.onclick = (event) => document.body.removeChild(event.target as HTMLElement)
-        downloadLink.style.display = "none"
-        document.body.appendChild(downloadLink)
-        downloadLink.click()
-        break
-      }
-    }
+    this.canvas_view.save(name)
   }
 
   serializable_state(): {[key: string]: unknown} {

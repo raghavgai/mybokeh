@@ -8,9 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -18,17 +16,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
-import sys
 import json
+import os
 import subprocess
-
+import sys
 from os.path import abspath, dirname, join, pardir, split
 
-# External imports
-
 # Bokeh imports
-from bokeh.util.terminal import trace, fail
+from bokeh.util.terminal import fail, trace
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -1,5 +1,4 @@
-from bokeh.core.properties import value
-from bokeh.io import show, output_file
+from bokeh.io import output_file, show
 from bokeh.plotting import figure
 
 output_file("stacked.html")
@@ -17,7 +16,7 @@ p = figure(x_range=fruits, plot_height=250, title="Fruit Counts by Year",
            toolbar_location=None, tools="")
 
 p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=data,
-             legend=[value(x) for x in years])
+             legend_label=years)
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.1

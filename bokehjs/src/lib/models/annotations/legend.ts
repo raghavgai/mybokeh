@@ -14,6 +14,7 @@ import {max, every} from "core/util/array"
 import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
+import {unreachable} from "core/util/assert"
 
 export class LegendView extends AnnotationView {
   model: Legend
@@ -127,15 +128,13 @@ export class LegendView extends AnnotationView {
           sx = hr.end - legend_margin - legend_width
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
-        default:
-          throw new Error("unreachable code")
       }
     } else if (isArray(location) && location.length == 2) {
       const [vx, vy] = location
       sx = panel.xview.compute(vx)
       sy = panel.yview.compute(vy) - legend_height
     } else
-      throw new Error("unreachable code")
+      unreachable()
 
     return new BBox({left: sx, top: sy, width: legend_width, height: legend_height})
   }
@@ -255,11 +254,13 @@ export class LegendView extends AnnotationView {
       if (labels.length == 0)
         continue
 
-      const active = (() => { switch (this.model.click_policy) {
-        case "none": return true
-        case "hide": return every(item.renderers, r => r.visible)
-        case "mute": return every(item.renderers, r => !r.muted)
-      } })()
+      const active = (() => {
+        switch (this.model.click_policy) {
+          case "none": return true
+          case "hide": return every(item.renderers, r => r.visible)
+          case "mute": return every(item.renderers, r => !r.muted)
+        }
+      })()
 
       for (const label of labels) {
         const x1 = bbox.x + xoffset
@@ -364,7 +365,7 @@ export class Legend extends Annotation {
     this.item_change = new Signal0(this, "item_change")
   }
 
-  static initClass(): void {
+  static init_Legend(): void {
     this.prototype.default_view = LegendView
 
     this.mixins([
@@ -378,7 +379,7 @@ export class Legend extends Annotation {
     this.define<Legend.Props>({
       orientation:      [ p.Orientation,    'vertical'  ],
       location:         [ p.Any,            'top_right' ], // TODO (bev)
-      title:            [ p.String,                     ],
+      title:            [ p.String                      ],
       title_standoff:   [ p.Number,         5           ],
       label_standoff:   [ p.Number,         5           ],
       glyph_height:     [ p.Number,         20          ],
@@ -416,4 +417,3 @@ export class Legend extends Annotation {
     return legend_names
   }
 }
-Legend.initClass()

@@ -24,9 +24,7 @@ figure below:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -34,13 +32,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import defaultdict
-from json import loads
 import sys
+from collections import defaultdict
+from functools import wraps
+from json import loads
 
 # External imports
 import jinja2
-from six import string_types
 
 # Bokeh imports
 from ..core.enums import HoldPolicy
@@ -49,16 +47,25 @@ from ..core.query import find
 from ..core.templates import FILE
 from ..core.validation import check_integrity
 from ..events import Event
-from ..themes import default as default_theme, built_in_themes
-from ..themes import Theme
+from ..themes import Theme, built_in_themes
+from ..themes import default as default_theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
-from ..util.future import wraps
 from ..util.version import __version__
-
-from .events import ModelChangedEvent, RootAddedEvent, RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent
+from .events import (
+    ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
+    SessionCallbackAdded,
+    SessionCallbackRemoved,
+    TitleChangedEvent,
+)
 from .locking import UnlockedDocumentProxy
-from .util import initialize_references_json, instantiate_references_json, references_json
+from .util import (
+    initialize_references_json,
+    instantiate_references_json,
+    references_json,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -158,7 +165,7 @@ class Document(object):
 
     @template.setter
     def template(self, template):
-        if not isinstance(template, (jinja2.Template, string_types)):
+        if not isinstance(template, (jinja2.Template, str)):
             raise ValueError("document template must be Jinja2 template or a string")
         self._template = template
 
@@ -191,7 +198,7 @@ class Document(object):
         if self._theme is theme:
             return
 
-        if isinstance(theme, string_types):
+        if isinstance(theme, str):
             try:
                 self._theme = built_in_themes[theme]
             except KeyError:
@@ -759,7 +766,7 @@ class Document(object):
             None
 
         Raises:
-            ValueError, if the callback was never added or has alraedy been run or removed
+            ValueError, if the callback was never added or has already been run or removed
 
         '''
         self._remove_session_callback(callback_obj, self.add_timeout_callback)
@@ -983,7 +990,7 @@ class Document(object):
             return False
         if field not in selector:
             return False
-        return isinstance(selector[field], string_types)
+        return isinstance(selector[field], str)
 
     def _notify_change(self, model, attr, old, new, hint=None, setter=None, callback_invoker=None):
         ''' Called by Model when it changes

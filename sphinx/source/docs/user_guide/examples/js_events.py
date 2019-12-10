@@ -2,11 +2,13 @@
 of the color_scatter example from the bokeh gallery
 """
 import numpy as np
-from bokeh.io import show, output_file
-from bokeh.plotting import figure
+
 from bokeh import events
-from bokeh.models import CustomJS, Div, Button
+from bokeh.io import output_file, show
 from bokeh.layouts import column, row
+from bokeh.models import Button, CustomJS, Div
+from bokeh.plotting import figure
+
 
 def display_event(div, attributes=[], style = 'float:left;clear:left;font_size=10pt'):
     "Build a suitable CustomJS to display the current event in the div model."
@@ -48,7 +50,7 @@ pan_attributes = point_attributes + ['delta_x', 'delta_y'] # Pan event
 pinch_attributes = point_attributes + ['scale']            # Pinch event
 
 point_events = [
-    events.Tap, events.DoubleTap, events.Press,
+    events.Tap, events.DoubleTap, events.Press, events.PressUp,
     events.MouseMove, events.MouseEnter, events.MouseLeave,
     events.PanStart, events.PanEnd, events.PinchStart, events.PinchEnd,
 ]

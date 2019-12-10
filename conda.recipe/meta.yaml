@@ -19,30 +19,27 @@ extra:
 
 requirements:
   build:
-    - certifi
     - jinja2
-    - nodejs >=8.8
+    - nodejs >=10.13
     - numpy
     - packaging
-    - pycurl
     - python
     - python-dateutil
     - pyyaml
+    - ripgrep
     - setuptools
-    - six
-    - tornado >=4.3
+    - tornado >=5
     - yaml
 
+  host:
+    - python >=3.6
+
   run:
-    - python
+    - python >=3.6
 
     {% for dep in data['install_requires'] %}
     - {{ dep.lower() }}
     {% endfor %}
-
-    # meta-package installs futures for 2.7 but not for 3.x
-    # needed in order to be able to build no-arch conda packages
-    - futures-compat
 
 test:
   requires:
@@ -61,32 +58,35 @@ test:
     - colorama
     - coverage
     - flake8
+    - flaky
+    - ipython <=7.9.0
+    - isort >=4.3.21
     - lxml
     - mock
+    - mypy
     - nbconvert >=5.4
     - networkx
-    - nodejs >=8.8
+    - nodejs >=10.13
     - numba
     - pandas
-    - pillow
     - psutil
-    - pytest <5.0
+    - pytest
+    - pytest-asyncio
     - pytest-cov >=1.8.1
     - pytest-html
     - pytest-xdist
     - requests >=1.2.3
-    - selenium=3.8.0
+    - selenium >=3.8
     - scipy
 
     # examples
     - flask >=1.0
+    - django
     - h5py
     - icalendar
-    - ipywidgets
     - networkx
     - notebook
     - opencv
-    - pscript
     - pyshp
     - scikit-learn
     - sympy
@@ -105,6 +105,5 @@ about:
 extra:
   deploy:
     - anaconda-client
-    - fabric3
     - setuptools >=0.39
     - twine >=1.11

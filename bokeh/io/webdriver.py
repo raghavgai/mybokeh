@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,16 +19,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
 import atexit
 import signal
+import sys
 import warnings
 from os.path import devnull
 
-# External imports
-
 # Bokeh imports
-from ..util.dependencies import import_required, detect_phantomjs, import_optional
+from ..util.dependencies import detect_phantomjs, import_optional, import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -86,7 +82,7 @@ def terminate_webdriver(driver):
 
     try:
         driver.quit()
-    except (IOError, OSError):  # IOError for Python 2.7
+    except OSError:
         pass
 
 #-----------------------------------------------------------------------------

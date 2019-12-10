@@ -14,18 +14,12 @@ multiple possible types.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 
 # Bokeh imports
 from ...util.string import nice_join
@@ -74,7 +68,7 @@ class Either(ParameterizedProperty):
         def choose_default():
             return self._type_params[0]._raw_default()
         default = kwargs.get("default", choose_default)
-        super(Either, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
         self.alternatives = []
         for tp in self._type_params:
             self.alternatives.extend(tp.alternatives)
@@ -109,7 +103,7 @@ class Either(ParameterizedProperty):
         raise ValueError("Could not transform %r" % value)
 
     def validate(self, value, detail=True):
-        super(Either, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             msg = "" if not detail else "expected an element of either %s, got %r" % (nice_join(self.type_params), value)

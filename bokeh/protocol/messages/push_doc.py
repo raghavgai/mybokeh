@@ -8,30 +8,23 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ..exceptions import ProtocolError
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'push_doc_1',
+    'push_doc',
 )
 
 #-----------------------------------------------------------------------------
@@ -42,10 +35,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class push_doc_1(Message):
-    ''' Define the ``PUSH-DOC`` message (revision 1) for pushing Documents
-    from clients to a Bokeh server.
+class push_doc(Message):
+    ''' Define the ``PUSH-DOC`` message for pushing Documents from clients to a
+    Bokeh server.
 
     The ``content`` fragment of for this message is has the form:
 
@@ -58,10 +50,9 @@ class push_doc_1(Message):
     '''
 
     msgtype  = 'PUSH-DOC'
-    revision = 1
 
     def __init__(self, header, metadata, content):
-        super(push_doc_1, self).__init__(header, metadata, content)
+        super().__init__(header, metadata, content)
 
     @classmethod
     def create(cls, document, **metadata):

@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
 
-from bokeh.core.properties import field
 from bokeh.io import curdoc
 from bokeh.layouts import layout
-from bokeh.models import (ColumnDataSource, HoverTool, SingleIntervalTicker,
-                          Slider, Button, Label, CategoricalColorMapper)
+from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource,
+                          HoverTool, Label, SingleIntervalTicker, Slider,)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
-
 from data import process_data
 
 fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()
@@ -48,7 +45,7 @@ plot.circle(
     line_color='#7c7e71',
     line_width=0.5,
     line_alpha=0.5,
-    legend=field('region'),
+    legend_group='region',
 )
 plot.add_tools(HoverTool(tooltips="@Country", show_arrow=False, point_policy='follow_mouse'))
 

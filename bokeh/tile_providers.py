@@ -119,9 +119,7 @@ Additional information available at:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 
 log = logging.getLogger(__name__)
 
@@ -133,11 +131,8 @@ log = logging.getLogger(__name__)
 import sys
 import types
 
-# External imports
-
 # Bokeh imports
 from bokeh.core.enums import enumeration
-
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -156,17 +151,6 @@ from bokeh.core.enums import enumeration
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-# Can be removed in bokeh 2.0
-def _make_deprecated_property(name):
-
-    def deprecated_property_tile(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old=name, new='get_provider(Vendors.%s)' % name)
-        return self.get_provider(provider_name=name)
-    func = property(deprecated_property_tile)
-    return func
-
 
 class _TileProvidersModule(types.ModuleType):
     _CARTO_ATTRIBUTION = (
@@ -205,7 +189,7 @@ class _TileProvidersModule(types.ModuleType):
                           case_sensitive=True)
 
     def get_provider(self, provider_name):
-        from bokeh.models.tiles import WMTSTileSource
+        from bokeh.models import WMTSTileSource
 
         if isinstance(provider_name, WMTSTileSource):
             # This allows `get_provider(CARTODBPOSITRON)` to work
@@ -227,15 +211,13 @@ class _TileProvidersModule(types.ModuleType):
 
     # Properties --------------------------------------------------------------
 
-    # For bokeh 2.0 these can easily be replaced with their corresponding enum values
-    CARTODBPOSITRON = _make_deprecated_property(Vendors.CARTODBPOSITRON)
-    CARTODBPOSITRON_RETINA = _make_deprecated_property(Vendors.CARTODBPOSITRON_RETINA)
-    STAMEN_TERRAIN = _make_deprecated_property(Vendors.STAMEN_TERRAIN)
-    STAMEN_TERRAIN_RETINA = _make_deprecated_property(Vendors.STAMEN_TERRAIN_RETINA)
-    STAMEN_TONER = _make_deprecated_property(Vendors.STAMEN_TONER)
-    STAMEN_TONER_BACKGROUND = _make_deprecated_property(Vendors.STAMEN_TONER_BACKGROUND)
-    STAMEN_TONER_LABELS = _make_deprecated_property(Vendors.STAMEN_TONER_LABELS)
-
+    CARTODBPOSITRON = Vendors.CARTODBPOSITRON
+    CARTODBPOSITRON_RETINA = Vendors.CARTODBPOSITRON_RETINA
+    STAMEN_TERRAIN = Vendors.STAMEN_TERRAIN
+    STAMEN_TERRAIN_RETINA = Vendors.STAMEN_TERRAIN_RETINA
+    STAMEN_TONER = Vendors.STAMEN_TONER
+    STAMEN_TONER_BACKGROUND = Vendors.STAMEN_TONER_BACKGROUND
+    STAMEN_TONER_LABELS = Vendors.STAMEN_TONER_LABELS
 
 #-----------------------------------------------------------------------------
 # Code
@@ -255,4 +237,4 @@ _mod.__all__ = (
     'Vendors'
 )
 sys.modules['bokeh.tile_providers'] = _mod
-del _mod, sys, types, _make_deprecated_property
+del _mod, sys, types

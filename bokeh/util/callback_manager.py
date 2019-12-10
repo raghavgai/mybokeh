@@ -12,9 +12,7 @@ interfaces to classes.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,13 +20,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-
-# External imports
-from six import string_types
+from inspect import signature
 
 # Bokeh imports
 from ..events import Event
-from ..util.future import get_param_info, format_signature, signature
+from ..util.functions import get_param_info
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,11 +45,11 @@ class EventCallbackManager(object):
 
     '''
     def __init__(self, *args, **kw):
-        super(EventCallbackManager, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self._event_callbacks = dict()
 
     def on_event(self, event, *callbacks):
-        if not isinstance(event, string_types) and issubclass(event, Event):
+        if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
         for callback in callbacks:
@@ -105,7 +101,7 @@ class PropertyCallbackManager(object):
     '''
 
     def __init__(self, *args, **kw):
-        super(PropertyCallbackManager, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self._callbacks = dict()
 
     def on_change(self, attr, *callbacks):
@@ -178,7 +174,7 @@ def _nargs(fn):
 def _check_callback(callback, fargs, what="Callback functions"):
     '''Bokeh-internal function to check callback signature'''
     sig = signature(callback)
-    formatted_args = format_signature(sig)
+    formatted_args = str(sig)
     error_msg = what + " must have signature func(%s), got func%s"
 
     all_names, default_values = get_param_info(sig)

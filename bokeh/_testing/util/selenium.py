@@ -11,16 +11,12 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 
 # External imports
 from selenium.common.exceptions import TimeoutException
@@ -49,6 +45,7 @@ __all__ = (
     'get_page_element',
     'get_table_cell',
     'get_table_column_cells',
+    'get_table_header',
     'get_table_row',
     'get_table_selected_rows',
     'hover_element',
@@ -223,6 +220,9 @@ def get_table_selected_rows(driver):
 
 def get_table_cell(driver, row, col):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
+
+def get_table_header(driver, col):
+    return driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
 
 def get_page_element(driver, element_selector):
     return driver.find_element_by_css_selector(element_selector)

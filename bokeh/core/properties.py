@@ -93,7 +93,9 @@ Basic Properties
 .. autoclass:: JSON
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
+.. autoclass:: NonNegativeInt
 .. autoclass:: Percent
+.. autoclass:: PositiveInt
 .. autoclass:: RGB
 .. autoclass:: Regex
 .. autoclass:: Size
@@ -164,20 +166,12 @@ to control when type validation occurs.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -221,11 +215,13 @@ __all__ = (
     'MarkerSpec',
     'MarkerType',
     'MinMaxBounds',
+    'NonNegativeInt',
     'NumberSpec',
     'Override',
     'PandasDataFrame',
     'PandasGroupBy',
     'Percent',
+    'PositiveInt',
     'RGB',
     'Regex',
     'RelativeDelta',
@@ -301,6 +297,7 @@ from .property.numeric import Byte; Byte
 from .property.numeric import Interval; Interval
 from .property.numeric import NonNegativeInt; NonNegativeInt
 from .property.numeric import Percent; Percent
+from .property.numeric import PositiveInt; PositiveInt
 from .property.numeric import Size; Size
 
 from .property.override import Override ; Override

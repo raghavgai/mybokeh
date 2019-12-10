@@ -9,23 +9,25 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import ButtonType
 from bokeh.layouts import column
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, Dropdown, Plot, Range1d
-from bokeh._testing.util.selenium import RECORD
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Dropdown,
+    Plot,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

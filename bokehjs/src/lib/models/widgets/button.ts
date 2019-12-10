@@ -30,16 +30,11 @@ export class Button extends AbstractButton {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Button(): void {
     this.prototype.default_view = ButtonView
-
-    this.define<Button.Props>({
-      clicks: [ p.Number, 0 ], // deprecated
-    })
 
     this.override({
       label: "Button",
     })
   }
 }
-Button.initClass()

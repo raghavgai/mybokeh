@@ -1,6 +1,6 @@
+import tz from "timezone"
 import * as Numbro from "numbro"
-import compile_template = require("underscore.template")
-import tz = require("timezone")
+import {_} from "underscore.template"
 
 import * as p from "core/properties"
 import {div, i} from "core/dom"
@@ -51,7 +51,7 @@ export class StringFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_StringFormatter(): void {
     this.define<StringFormatter.Props>({
       font_style: [ p.FontStyle, "normal" ],
       text_align: [ p.TextAlign, "left"   ],
@@ -80,7 +80,61 @@ export class StringFormatter extends CellFormatter {
     return text.outerHTML
   }
 }
-StringFormatter.initClass()
+
+export namespace ScientificFormatter {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = StringFormatter.Props & {
+    precision: p.Property<number>
+    power_limit_high: p.Property<number>
+    power_limit_low: p.Property<number>
+  }
+}
+
+export interface ScientificFormatter extends ScientificFormatter.Attrs {}
+
+export abstract class ScientificFormatter extends StringFormatter {
+  properties: ScientificFormatter.Props
+
+  constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
+    super(attrs)
+  }
+
+  static init_ScientificFormatter(): void {
+    this.define<ScientificFormatter.Props>({
+      precision:        [ p.Number,  10     ],
+      power_limit_high: [ p.Number,  5      ],
+      power_limit_low:  [ p.Number,  -3     ],
+    })
+  }
+
+  get scientific_limit_low(): number {
+    return Math.pow(10.0, this.power_limit_low)
+  }
+
+  get scientific_limit_high(): number {
+    return Math.pow(10.0, this.power_limit_high)
+  }
+
+  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+    const need_sci = value <= this.scientific_limit_low || value >= this.scientific_limit_high
+    let precision = this.precision
+
+    // toExponential does not handle precision values < 0 correctly
+    if (precision < 1) {
+      precision = 1
+    }
+
+    if (need_sci) {
+      value = value.toExponential(precision)
+    } else {
+      value = value.toFixed(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+    }
+
+    // add StringFormatter formatting
+    return super.doFormat(row, cell, value, columnDef, dataContext)
+  }
+}
 
 export namespace NumberFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -101,7 +155,7 @@ export class NumberFormatter extends StringFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_NumberFormatter(): void {
 
     this.define<NumberFormatter.Props>({
       format:   [ p.String,           '0,0'   ], // TODO (bev)
@@ -112,16 +166,17 @@ export class NumberFormatter extends StringFormatter {
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {format, language} = this
-    const rounding = (() => { switch (this.rounding) {
-      case "round": case "nearest":   return Math.round
-      case "floor": case "rounddown": return Math.floor
-      case "ceil":  case "roundup":   return Math.ceil
-    } })()
+    const rounding = (() => {
+      switch (this.rounding) {
+        case "round": case "nearest":   return Math.round
+        case "floor": case "rounddown": return Math.floor
+        case "ceil":  case "roundup":   return Math.ceil
+      }
+    })()
     value = Numbro.format(value, format, language, rounding)
     return super.doFormat(row, cell, value, columnDef, dataContext)
   }
 }
-NumberFormatter.initClass()
 
 export namespace BooleanFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -140,7 +195,7 @@ export class BooleanFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BooleanFormatter(): void {
 
     this.define<BooleanFormatter.Props>({
       icon: [ p.String, 'check' ],
@@ -151,7 +206,6 @@ export class BooleanFormatter extends CellFormatter {
     return !!value ? i({class: this.icon}).outerHTML : ""
   }
 }
-BooleanFormatter.initClass()
 
 export namespace DateFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -170,14 +224,14 @@ export class DateFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DateFormatter(): void {
 
     this.define<DateFormatter.Props>({
       format: [ p.String, 'ISO-8601' ],
     })
   }
 
-   getFormat(): string | undefined {
+  getFormat(): string | undefined {
     // using definitions provided here: https://api.jqueryui.com/datepicker/
     // except not implementing TICKS
     switch (this.format) {
@@ -210,7 +264,6 @@ export class DateFormatter extends CellFormatter {
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
-DateFormatter.initClass()
 
 export namespace HTMLTemplateFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -229,7 +282,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_HTMLTemplateFormatter(): void {
 
     this.define<HTMLTemplateFormatter.Props>({
       template: [ p.String, '<%= value %>' ],
@@ -241,10 +294,9 @@ export class HTMLTemplateFormatter extends CellFormatter {
     if (value == null)
       return ""
     else {
-      const compiled_template = compile_template(template)
+      const compiled_template = _.template(template)
       const context = {...dataContext, value}
       return compiled_template(context)
     }
   }
 }
-HTMLTemplateFormatter.initClass()

@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,9 +21,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from pprint import pformat
+from urllib.parse import urljoin
 
 # External imports
-from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import StaticFileHandler
@@ -35,9 +33,10 @@ from ..application import Application
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
-
-from .contexts import ApplicationContext
+from ..util.string import format_docstring
+from .auth_provider import NullAuth
 from .connection import ServerConnection
+from .contexts import ApplicationContext
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
@@ -46,9 +45,6 @@ from .views.static_handler import StaticHandler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# Unfortunately we can't yet use format_docstring to keep these automatically in sync in
-# the class docstring because Python 2 does not allow setting class.__doc__ (works with
-# Bokeh model classes because they are metaclasses)
 DEFAULT_CHECK_UNUSED_MS                  = 17000
 DEFAULT_KEEP_ALIVE_MS                    = 37000  # heroku, nginx default to 60s timeout, so use less than that
 DEFAULT_MEM_LOG_FREQ_MS                  = 0
@@ -76,7 +72,7 @@ class BokehTornado(TornadoApplication):
 
             .. code-block:: python
 
-                applications = { '/' : applications }
+                applications = {{ '/' : applications }}
 
             When a connection comes in to a given path, the associate
             Application is used to generate a new document for the session.
@@ -120,23 +116,27 @@ class BokehTornado(TornadoApplication):
             (default: True)
 
         keep_alive_milliseconds (int, optional) :
-            Number of milliseconds between keep-alive pings (default: 37000)
+            Number of milliseconds between keep-alive pings
+            (default: {DEFAULT_KEEP_ALIVE_MS})
 
             Pings normally required to keep the websocket open. Set to 0 to
             disable pings.
 
         check_unused_sessions_milliseconds (int, optional) :
             Number of milliseconds between checking for unused sessions
-            (default: 17000)
+            (default: {DEFAULT_CHECK_UNUSED_MS})
 
         unused_session_lifetime_milliseconds (int, optional) :
-            Number of milliseconds for unused session lifetime (default: 15000)
+            Number of milliseconds for unused session lifetime
+            (default: {DEFAULT_UNUSED_LIFETIME_MS})
 
         stats_log_frequency_milliseconds (int, optional) :
-            Number of milliseconds between logging stats (default: 15000)
+            Number of milliseconds between logging stats
+            (default: {DEFAULT_STATS_LOG_FREQ_MS})
 
         mem_log_frequency_milliseconds (int, optional) :
-            Number of milliseconds between logging memory information (default: 0)
+            Number of milliseconds between logging memory information
+            (default: {DEFAULT_MEM_LOG_FREQ_MS})
 
             Enabling this feature requires the optional dependency ``psutil`` to be
             installed.
@@ -160,9 +160,13 @@ class BokehTornado(TornadoApplication):
 
         websocket_max_message_size_bytes (int, optional):
             Set the Tornado ``websocket_max_message_size`` value.
-            (default: 20*1024*1024)
+            (default: {DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES})
 
-            NOTE: This setting has effect ONLY for Tornado>=4.5
+        index (str, optional):
+            Path to a Jinja2 template to use for the root URL
+
+        auth_provider (AuthProvider, optional):
+            An AuthProvider instance
 
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
@@ -184,6 +188,8 @@ class BokehTornado(TornadoApplication):
                  redirect_root=True,
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  index=None,
+                 auth_provider=NullAuth(),
+                 xsrf_cookies=False,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -243,11 +249,22 @@ class BokehTornado(TornadoApplication):
         self._mem_log_frequency_milliseconds = mem_log_frequency_milliseconds
 
         if websocket_max_message_size_bytes <= 0:
-            raise ValueError("websocket_max_message_size_bytes must be postitive")
+            raise ValueError("websocket_max_message_size_bytes must be positive")
         elif websocket_max_message_size_bytes != DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES:
             log.info("Torndado websocket_max_message_size set to %d bytes (%0.2f MB)",
                      websocket_max_message_size_bytes,
                      websocket_max_message_size_bytes/1024.0**2)
+
+        self.auth_provider = auth_provider
+
+        if self.auth_provider.get_user or self.auth_provider.get_user_async:
+            log.info("User authentication hooks provided (no default user)")
+        else:
+            log.info("User authentication hooks NOT provided (default user enabled)")
+
+        kwargs['xsrf_cookies'] = xsrf_cookies
+        if xsrf_cookies:
+            log.info("XSRF cookie protection enabled")
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()
@@ -261,9 +278,11 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v,url=k)
+            self._applications[k] = ApplicationContext(v, url=k, logout_url=self.auth_provider.logout_url)
 
         extra_patterns = extra_patterns or []
+        extra_patterns.extend(self.auth_provider.endpoints)
+
         all_patterns = []
         for key, app in applications.items():
             app_patterns = []
@@ -312,7 +331,7 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super(BokehTornado, self).__init__(all_patterns,
+        super().__init__(all_patterns,
                                            websocket_max_message_size=websocket_max_message_size_bytes,
                                            **kwargs)
 
@@ -418,9 +437,11 @@ class BokehTornado(TornadoApplication):
                 relative URLs are used (default: None)
 
         '''
-        if absolute_url:
-            return Resources(mode="server", root_url=absolute_url + self._prefix, path_versioner=StaticHandler.append_version)
-        return Resources(mode="server", root_url=self._prefix, path_versioner=StaticHandler.append_version)
+        mode = settings.resources(default="server")
+        if mode == "server":
+            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+        return Resources(mode=mode)
 
     def start(self):
         ''' Start the Bokeh Server application.
@@ -438,7 +459,7 @@ class BokehTornado(TornadoApplication):
             self._ping_job.start()
 
         for context in self._applications.values():
-            context.run_load_hook()
+            self._loop.spawn_callback(context.run_load_hook)
 
     def stop(self, wait=True):
         ''' Stop the Bokeh Server application.
@@ -510,12 +531,11 @@ class BokehTornado(TornadoApplication):
 
     # Periodic Callbacks ------------------------------------------------------
 
-    @gen.coroutine
-    def _cleanup_sessions(self):
+    async def _cleanup_sessions(self):
         log.trace("Running session cleanup job")
         for app in self._applications.values():
-            yield app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
-        raise gen.Return(None)
+            await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+        return None
 
     def _log_stats(self):
         log.trace("Running stats log job")
@@ -568,3 +588,13 @@ class BokehTornado(TornadoApplication):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+BokehTornado.__doc__ = format_docstring(
+    BokehTornado.__doc__,
+    DEFAULT_CHECK_UNUSED_MS=DEFAULT_CHECK_UNUSED_MS,
+    DEFAULT_KEEP_ALIVE_MS=DEFAULT_KEEP_ALIVE_MS,
+    DEFAULT_MEM_LOG_FREQ_MS=DEFAULT_MEM_LOG_FREQ_MS,
+    DEFAULT_STATS_LOG_FREQ_MS=DEFAULT_STATS_LOG_FREQ_MS,
+    DEFAULT_UNUSED_LIFETIME_MS=DEFAULT_UNUSED_LIFETIME_MS,
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+)

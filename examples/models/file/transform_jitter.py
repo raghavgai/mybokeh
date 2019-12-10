@@ -1,10 +1,7 @@
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
-from bokeh.models.sources import ColumnDataSource
-from bokeh.models import CustomJS, Button, LabelSet
-from bokeh.models.transforms import Jitter
-from bokeh.models.layouts import Column
+from bokeh.models import Button, Column, ColumnDataSource, CustomJS, Jitter, LabelSet
+from bokeh.plotting import figure, output_file, show
 
 N = 1000
 
@@ -27,18 +24,19 @@ label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data, ren
                      text_baseline="top", text_align='center')
 p.add_layout(label_set)
 
-callback=CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
-    var data = source.data;
-    for (var i = 0; i < data['y'].length; i++) {
-        data['xn'][i] = normal.compute(data['x'][i] + 1);
+callback = CustomJS(args=dict(source=source, normal=normal, uniform=uniform), code="""
+    const data = source.data;
+    for (var i = 0; i < data.y.length; i++) {
+        data.xn[i] = normal.compute(data.x[i] + 1);
     }
-    for (var i = 0; i < data['y'].length; i++) {
-        data['xu'][i] = uniform.compute(data['x'][i] + 2);
+    for (var i = 0; i < data.y.length; i++) {
+        data.xu[i] = uniform.compute(data.x[i] + 2);
     }
     source.change.emit();
 """)
 
-button = Button(label='Press to apply Jitter!', width=300, callback=callback)
+button = Button(label='Press to apply Jitter!', width=300)
+button.js_on_click(callback)
 
 output_file("transform_jitter.html", title="Example Jitter Transform")
 

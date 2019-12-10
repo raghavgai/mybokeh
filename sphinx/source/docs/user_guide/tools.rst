@@ -184,6 +184,15 @@ The box select tool may be configured to select across only one dimension by
 setting the ``dimensions`` property to ``width`` or ``height`` instead of the
 default ``both``.
 
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
+
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the
     selection, press the ESC key.
@@ -206,6 +215,15 @@ LassoSelectTool
 
 The lasso selection tool allows the user to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
+
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
 
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the selection,
@@ -243,6 +261,15 @@ The polygon selection tool allows the user to define an arbitrary polygonal
 region for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
+
 .. note::
     Complete the selection by making a double left-click or tapping. To make a
     multiple selection, press the SHIFT key. To clear the selection, press the
@@ -256,6 +283,15 @@ TapTool
 
 The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
+
+After a selection is made, the indices of the selected points are available
+from properties on the |Selection| object for a glyph data source. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
 
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the selection,
@@ -393,7 +429,7 @@ HoverTool
 The hover tool is a passive inspector tool. It is generally on at all times,
 but can be configured in the inspector’s menu associated with the toolbar.
 
-.. _basic_tooltips:
+.. _userguide_tools_basic_tooltips:
 
 Basic Tooltips
 ''''''''''''''
@@ -487,11 +523,11 @@ with a ``mode`` property:
     whenever the a horizontal line from the mouse position intersects a glyph
 
 The default configuration is ``mode = "mouse"``. This can be observed in the
-:ref:`basic_tooltips` example above. The example below in
-:ref:`formatting_tooltip_fields` demonstrates an example that sets
-``mode = "vline"``.
+:ref:`userguide_tools_basic_tooltips` example above. The example below in
+:ref:`userguide_tools_formatting_tooltip_fields` demonstrates an example that
+sets ``mode = "vline"``.
 
-.. _formatting_tooltip_fields:
+.. _userguide_tools_formatting_tooltip_fields:
 
 Formatting Tooltip Fields
 '''''''''''''''''''''''''
@@ -527,13 +563,19 @@ strings:
     |PrintfTickFormatter| reference documentation for complete details.
 
 These are supplied by configuring the ``formatters`` property of a hover
-tool. This property maps column names to format schemes. For example, to
-use the ``"datetime"`` scheme for formatting a column ``"close date"``,
+tool. This property maps tooltip variables to format schemes. For example, to
+use the ``"datetime"`` scheme for formatting a column ``"@{close date}"``,
 set the value:
 
 .. code-block:: python
 
-    hover_tool.formatters = { "close date": "datetime"}
+    hover_tool.formatters = { "@{close date}": "datetime"}
+
+Formatters may also be supplied for "special variables" such as ``"$x"``:
+
+.. code-block:: python
+
+    hover_tool.formatters = { "$x": "datetime"}
 
 If no formatter is specified for a column name, the default ``"numeral"``
 formatter is assumed.
@@ -555,9 +597,9 @@ different formatters for different fields:
         ],
 
         formatters={
-            'date'      : 'datetime', # use 'datetime' formatter for 'date' field
-            'adj close' : 'printf',   # use 'printf' formatter for 'adj close' field
-                                      # use default 'numeral' formatter for other fields
+            '@date'        : 'datetime', # use 'datetime' formatter for '@date' field
+            '@{adj close}' : 'printf',   # use 'printf' formatter for '@{adj close}' field
+                                         # use default 'numeral' formatter for other fields
         },
 
         # display a tooltip whenever the cursor is vertically in line with a glyph
@@ -574,6 +616,7 @@ Using the |CustomJSHover| model, it is also possible to use JavaScript
 to specify a custom formatter that can display derived quantities in the
 tooltip.
 
+.. _userguide_tools_image_hover:
 
 Image Hover
 '''''''''''
@@ -661,7 +704,7 @@ space for the new box being added.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/box_edit_keyboard_optimized.gif"
+    <img src="https://docs.bokeh.org/static/box_edit_keyboard_optimized.gif"
      width='400px' alt="Animation showing box draw, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -729,7 +772,7 @@ queue to make space for the new patch/multi-line being added.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/freehand_draw_keyboard_optimized.gif"
+    <img src="https://docs.bokeh.org/static/freehand_draw_keyboard_optimized.gif"
      width='400px' alt="Animation showing freehand drawing and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -783,7 +826,7 @@ to make space for the new point being added.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/point_draw_keyboard_optimized.gif"
+    <img src="https://docs.bokeh.org/static/point_draw_keyboard_optimized.gif"
      width='400px' alt="Animation showing point draw, drag, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -849,7 +892,7 @@ ability to snap to existing vertices while drawing.
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/poly_draw_keyboard_optimized.gif"
+    <img src="https://docs.bokeh.org/static/poly_draw_keyboard_optimized.gif"
      width='400px' alt="Animation showing polygon draw, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -893,7 +936,7 @@ additional columns in the data source will be padded with the declared
 
 .. raw:: html
 
-    <img src="http://bokeh.pydata.org/static/poly_edit_keyboard_optimized.gif"
+    <img src="https://docs.bokeh.org/static/poly_edit_keyboard_optimized.gif"
      width='400px' alt="Animation showing polygon and vertex drag, select and delete actions">
 
 The animation above shows the supported tool actions, highlighting
@@ -966,6 +1009,8 @@ properties on |Plot| objects that control LOD behavior:
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+
+.. |Selection| replace:: :class:`~bokeh.models.selections.Selection`
 
 .. |hover_basic| image:: /_images/hover_basic.png
 

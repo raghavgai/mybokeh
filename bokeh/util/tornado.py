@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -23,11 +21,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import threading
 from collections import defaultdict
-
 from traceback import format_exception
 
 # External imports
-import six
 from tornado import gen
 
 # Bokeh imports
@@ -37,37 +33,11 @@ from ..util.serialization import make_id
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'yield_for_all_futures',
-)
+__all__ = ()
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-@gen.coroutine
-def yield_for_all_futures(result):
-    """ Converts result into a Future by collapsing any futures inside result.
-
-    If result is a Future we yield until it's done, then if the value inside
-    the Future is another Future we yield until it's done as well, and so on.
-    """
-    while True:
-
-        # This is needed for Tornado >= 4.5 where convert_yielded will no
-        # longer raise BadYieldError on None
-        if result is None:
-            break
-
-        try:
-            future = gen.convert_yielded(result)
-        except gen.BadYieldError:
-            # result is not a yieldable thing, we are done
-            break
-        else:
-            result = yield future
-
-    raise gen.Return(result)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -105,24 +75,16 @@ class _AsyncPeriodic(object):
         self._started = True
 
         def invoke():
-            # important to start the sleep before starting callback
-            # so any initial time spent in callback "counts against"
-            # the period.
+            # important to start the sleep before starting callback so any initial
+            # time spent in callback "counts against" the period.
             sleep_future = self.sleep()
             result = self._func()
 
-            # This is needed for Tornado >= 4.5 where convert_yielded will no
-            # longer raise BadYieldError on None
             if result is None:
                 return sleep_future
 
-            try:
-                callback_future = gen.convert_yielded(result)
-            except gen.BadYieldError:
-                # result is not a yieldable thing
-                return sleep_future
-            else:
-                return gen.multi([sleep_future, callback_future])
+            callback_future = gen.convert_yielded(result)
+            return gen.multi([sleep_future, callback_future])
 
         def on_done(future):
             if not self._stopped:
@@ -130,10 +92,7 @@ class _AsyncPeriodic(object):
             ex = future.exception()
             if ex is not None:
                 log.error("Error thrown from periodic callback:")
-                if six.PY2:
-                    lines = format_exception(*future.exc_info())
-                else:
-                    lines = format_exception(ex.__class__, ex, ex.__traceback__)
+                lines = format_exception(ex.__class__, ex, ex.__traceback__)
                 log.error("".join(lines))
 
         self._loop.add_future(self.sleep(), on_done)

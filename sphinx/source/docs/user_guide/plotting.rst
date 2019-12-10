@@ -96,7 +96,7 @@ accomplished with the |multi_line| glyph method:
     dimensional list or array of scalar values, it accepts a "list of lists"
     for x and y positions of each line, parameters xs and ys. multi_line
     also expects a scalar value or a list of scalers per each line for
-    parameters such as color, alpha, linewidth, etc. Similarily, a
+    parameters such as color, alpha, linewidth, etc. Similarly, a
     ColumnDataSource may be used consisting of a "list of lists" and a
     lists of scalars where the length of the list of scalars and length of
     lists must match.
@@ -258,7 +258,7 @@ This can be accomplished with the |patches| glyph method:
     dimensional list or array of scalar values, it accepts a "list of lists"
     for x and y positions of each patch, parameters xs and ys. patches
     also expects a scalar value or a list of scalers per each patch for
-    parameters such as color, alpha, linewidth, etc. Similarily, a
+    parameters such as color, alpha, linewidth, etc. Similarly, a
     ColumnDataSource may be used consisting of a "list of lists" and a
     lists of scalars where the length of the list of scalars and length of
     lists must match.
@@ -293,7 +293,7 @@ holes inside each polygon.
     list of x and y positions for the exterior and holes composing each
     polygon. MultiPolygons also expects a scalar value or a list of scalers
     per each item for parameters such as color, alpha, linewidth, etc.
-    Similarily, one can use a ColumnDataSource consisting of a 3 times nested
+    Similarly, one can use a ColumnDataSource consisting of a 3 times nested
     list and a list of scalars where the length of the list of scalars and
     length of the top level list must match.
 
@@ -363,23 +363,37 @@ Images
 ~~~~~~
 
 You can display images on Bokeh plots using the |image|, |image_rgba|, and
-|image_url| glyph methods.
+|image_url| glyph methods. It is possible to use a hover tool with image glyphs
+to allow for interactive inspection of the values any any pixel. For more
+information on how to enable hover with images, please consult the
+:ref:`Image Hover section <userguide_tools_image_hover>` of the User's Guide.
+
+.. _userguide_plotting_images_rgba:
+
+Raw RGBA data
+'''''''''''''
 
 The first example here shows how to display images in Bokeh plots from
 raw RGBA data using |image_rgba|:
 
-.. note::
-    This example depends on the open source NumPy library in order to more
-    easily generate an array of RGBA data.
+.. bokeh-plot:: docs/user_guide/examples/plotting_image_rgba.py
+    :source-position: above
+
+.. _userguide_plotting_images_colormapped:
+
+Colormapped Images
+''''''''''''''''''
+
+It is also possible to provide an array of *scalar values*, and have Bokeh
+automatically colormap the data in the browser by using the |image| glyph
+method. The next example shows how to do this:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_image.py
     :source-position: above
 
-The hover tool allows interactive inspection of the values specified at
-any chosen pixel. For more information on how to enable hover with
-images, please consult the hover tool section of the :ref:`tools user
-guide <userguide_tools_inspectors>`.
-
+Also note in the above example we have set the render level to ``"image"``.
+Normally, all glyphs are drawn *above* grid lines, but setting the ``"image"``
+render level can be used to draw *underneath* the grid lines.
 
 .. _userguide_plotting_segments_rays:
 
@@ -574,14 +588,6 @@ below:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_twin_axes.py
     :source-position: above
-
-.. _userguide_plotting_annotations:
-
-Adding Annotations
-------------------
-
-The section on adding annotations to plots has moved.  Please see
-:ref:`userguide_annotations`
 
 .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 

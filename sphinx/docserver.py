@@ -1,16 +1,14 @@
-from __future__ import print_function
-
-import flask
 import os
 import sys
 import threading
 import time
 import webbrowser
-import tornado
 
-from tornado.wsgi import WSGIContainer
+import flask
+import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from tornado.wsgi import WSGIContainer
 
 _basedir = os.path.join("..", os.path.dirname(__file__))
 
@@ -25,10 +23,19 @@ def welcome():
     You probably want to go to <a href="/en/latest/index.html"> Index</a>
     """
 
-@app.route('/en/latest/<path:filename>')
-def send_pic(filename):
+@app.route('/versions.json')
+def send_versions():
     return flask.send_from_directory(
-        os.path.join(_basedir,"sphinx/build/html/"), filename)
+        os.path.join(_basedir, "sphinx"), "test_versions.json")
+
+@app.route('/alert.html')
+def send_alert():
+    return os.environ.get("BOKEH_DOCS_ALERT", "")
+
+@app.route('/en/latest/<path:filename>')
+def send_docs(filename):
+    return flask.send_from_directory(
+        os.path.join(_basedir, "sphinx/build/html/"), filename)
 
 def open_browser():
     # Child process
@@ -40,7 +47,7 @@ data = {}
 def serve_http():
     data['ioloop'] = IOLoop()
     http_server.listen(PORT)
-    IOLoop.instance().start()
+    IOLoop.current().start()
 
 def shutdown_server():
     ioloop = data['ioloop']

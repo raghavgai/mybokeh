@@ -9,7 +9,6 @@ export namespace CustomJS {
   export type Props = Callback.Props & {
     args: p.Property<{[key: string]: unknown}>
     code: p.Property<string>
-    use_strict: p.Property<boolean>
   }
 }
 
@@ -22,11 +21,10 @@ export class CustomJS extends Callback {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CustomJS(): void {
     this.define<CustomJS.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
-      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -39,12 +37,11 @@ export class CustomJS extends Callback {
   }
 
   get func(): Function {
-    const code = this.use_strict ? use_strict(this.code) : this.code
-    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", code)
+    const code = use_strict(this.code)
+    return new Function(...this.names, "cb_obj", "cb_data", code)
   }
 
   execute(cb_obj: unknown, cb_data: {[key: string]: unknown} = {}): unknown {
-    return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data, require, {}))
+    return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data))
   }
 }
-CustomJS.initClass()

@@ -9,23 +9,28 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from bokeh.models import (
-    Circle, CategoricalScale, ColumnDataSource, CustomAction, CustomJS, DataRange1d, FactorRange, Plot,
-    Range1d, Rect, ResetTool, ZoomInTool)
 from bokeh._testing.util.selenium import COUNT, RECORD
+from bokeh.models import (
+    CategoricalScale,
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    DataRange1d,
+    FactorRange,
+    Plot,
+    Range1d,
+    Rect,
+    ResetTool,
+    ZoomInTool,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

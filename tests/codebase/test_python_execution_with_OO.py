@@ -9,8 +9,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -22,14 +20,14 @@ import os
 from subprocess import PIPE, Popen
 from sys import executable
 
-# External imports
-
 # Bokeh imports
 from . import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
+
+blacklist = {}
 
 @pytest.mark.codebase
 def test_python_execution_with_OO():
@@ -58,6 +56,9 @@ def test_python_execution_with_OO():
                 mod = path.replace(os.sep, ".")
             else:
                 mod = path.replace(os.sep, ".") + "." + file[:-3]
+
+            if mod in blacklist:
+                continue
 
             imports.append("import " + mod)
 

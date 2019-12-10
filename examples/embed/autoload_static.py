@@ -1,5 +1,4 @@
 from jinja2 import Template
-
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
@@ -21,7 +20,7 @@ template = Template("""
   <div>
     The plot embedded below is a standalone plot that was embedded using
     <fixed>autoload_static</fixed>. For more information see the
-    <a target="_blank" href="https://bokeh.pydata.org/en/latest/docs/user_guide/embed.html#static-data">
+    <a target="_blank" href="https://docs.bokeh.org/en/latest/docs/user_guide/embed.html#autoload-scripts">
     documentation</a>.
   </div>
   {{ script|safe }}

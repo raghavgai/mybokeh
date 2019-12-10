@@ -11,23 +11,21 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
-from tornado import gen
-from tornado.web import RequestHandler, HTTPError
+from tornado.web import HTTPError, RequestHandler, authenticated
 
 # Bokeh imports
-from bokeh.util.session_id import generate_session_id, check_session_id_signature
+from bokeh.util.session_id import check_session_id_signature, generate_session_id
+
+# Bokeh imports
+from .auth_mixin import AuthMixin
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +43,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class SessionHandler(RequestHandler):
+class SessionHandler(AuthMixin, RequestHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
@@ -53,13 +51,13 @@ class SessionHandler(RequestHandler):
         self.application_context = kw['application_context']
         self.bokeh_websocket_path = kw['bokeh_websocket_path']
         # Note: tornado_app is stored as self.application
-        super(SessionHandler, self).__init__(tornado_app, *args, **kw)
+        super().__init__(tornado_app, *args, **kw)
 
     def initialize(self, *args, **kw):
         pass
 
-    @gen.coroutine
-    def get_session(self):
+    @authenticated
+    async def get_session(self):
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
             if self.application.generate_session_ids:
@@ -74,9 +72,9 @@ class SessionHandler(RequestHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise HTTPError(status_code=403, reason="Invalid session ID")
 
-        session = yield self.application_context.create_session_if_needed(session_id, self.request)
+        session = await self.application_context.create_session_if_needed(session_id, self.request)
 
-        raise gen.Return(session)
+        return session
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,12 +20,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os import getcwd
-from os.path import dirname, basename, splitext, join
+from os.path import basename, dirname, join, splitext
 from tempfile import NamedTemporaryFile
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants

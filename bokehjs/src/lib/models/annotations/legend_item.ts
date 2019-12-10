@@ -28,7 +28,7 @@ export class LegendItem extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_LegendItem(): void {
     this.define<LegendItem.Props>({
       label:     [ p.StringSpec, null ],
       renderers: [ p.Array,      []   ],
@@ -72,7 +72,7 @@ export class LegendItem extends Model {
     super.initialize()
     this.legend = null
     this.connect(this.change,
-      () => { if (this.legend != null) this.legend.item_change.emit() })
+                 () => { if (this.legend != null) this.legend.item_change.emit() })
 
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers()
@@ -117,4 +117,3 @@ export class LegendItem extends Model {
     return []
   }
 }
-LegendItem.initClass()

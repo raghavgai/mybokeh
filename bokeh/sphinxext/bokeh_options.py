@@ -40,9 +40,7 @@ the above usage yields the output:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -55,7 +53,6 @@ import textwrap
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
-
 from sphinx.errors import SphinxError
 
 # Bokeh imports

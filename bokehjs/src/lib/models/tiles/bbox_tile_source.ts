@@ -18,7 +18,7 @@ export class BBoxTileSource extends MercatorTileSource {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BBoxTileSource(): void {
     this.define<BBoxTileSource.Props>({
       use_latlon: [ p.Boolean, false ],
     })
@@ -33,10 +33,10 @@ export class BBoxTileSource extends MercatorTileSource {
     else
       [xmin, ymin, xmax, ymax] = this.get_tile_meter_bounds(x, y, z)
 
-    return image_url.replace("{XMIN}", xmin.toString())
-                    .replace("{YMIN}", ymin.toString())
-                    .replace("{XMAX}", xmax.toString())
-                    .replace("{YMAX}", ymax.toString())
+    return image_url
+      .replace("{XMIN}", xmin.toString())
+      .replace("{YMIN}", ymin.toString())
+      .replace("{XMAX}", xmax.toString())
+      .replace("{YMAX}", ymax.toString())
   }
 }
-BBoxTileSource.initClass()

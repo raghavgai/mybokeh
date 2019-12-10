@@ -12,20 +12,12 @@ message objects that can be processed.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
-import six
-from tornado import gen
 
 # Bokeh imports
 from .exceptions import ValidationError
@@ -92,7 +84,7 @@ class Receiver(object):
     '''
 
     def __init__(self, protocol):
-        ''' Configure a Receiver with a specific Bokeh protocol version.
+        ''' Configure a Receiver with a specific Bokeh protocol.
 
         Args:
             protocol (Protocol) :
@@ -104,8 +96,7 @@ class Receiver(object):
         self._message = None
         self._buf_header = None
 
-    @gen.coroutine
-    def consume(self, fragment):
+    async def consume(self, fragment):
         ''' Consume individual protocol message fragments.
 
         Args:
@@ -116,7 +107,7 @@ class Receiver(object):
 
         '''
         self._current_consumer(fragment)
-        raise gen.Return(self._message)
+        return self._message
 
     def _HEADER(self, fragment):
         self._assume_text(fragment)
@@ -159,11 +150,11 @@ class Receiver(object):
             self._current_consumer = self._BUFFER_HEADER
 
     def _assume_text(self, fragment):
-        if not isinstance(fragment, six.text_type):
+        if not isinstance(fragment, str):
             raise ValidationError("expected text fragment but received binary fragment for %s" % (self._current_consumer.__name__))
 
     def _assume_binary(self, fragment):
-        if not isinstance(fragment, six.binary_type):
+        if not isinstance(fragment, bytes):
             raise ValidationError("expected binary fragment but received text fragment for %s" % (self._current_consumer.__name__))
 
 #-----------------------------------------------------------------------------

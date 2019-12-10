@@ -22,7 +22,7 @@ export class BoxAnnotationView extends AnnotationView {
 
   initialize(): void {
     super.initialize()
-    this.plot_view.canvas_overlays.appendChild(this.el)
+    this.plot_view.canvas_view.add_overlay(this.el)
     this.el.classList.add(bk_shading)
     undisplay(this.el)
   }
@@ -121,7 +121,7 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.restore()
   }
 
-  interactive_bbox() : BBox {
+  interactive_bbox(): BBox {
     const tol = this.model.properties.line_width.value() + EDGE_TOLERANCE
     return new BBox({
       x0: this.sleft-tol,
@@ -184,7 +184,7 @@ export class BoxAnnotation extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
     this.mixins(['line', 'fill'])
@@ -230,4 +230,3 @@ export class BoxAnnotation extends Annotation {
     this.data_update.emit()
   }
 }
-BoxAnnotation.initClass()

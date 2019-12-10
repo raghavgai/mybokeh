@@ -75,9 +75,7 @@ export class GroupingInfo extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'GroupingInfo'
-
+  static init_GroupingInfo(): void {
     this.define<GroupingInfo.Props>({
       getter:      [ p.String,   ''    ],
       aggregators: [ p.Array,    []    ],
@@ -91,7 +89,6 @@ export class GroupingInfo extends Model {
     }
   }
 }
-GroupingInfo.initClass()
 
 export class DataCubeProvider extends TableDataProvider {
 
@@ -218,7 +215,7 @@ export class DataCubeProvider extends TableDataProvider {
     return item instanceof Group
       ? item as Item
       : Object.keys(data)
-          .reduce((o, c) => ({...o, [c]: data[c][item as number]}), {[DTINDEX_NAME]: item})
+        .reduce((o, c) => ({...o, [c]: data[c][item as number]}), {[DTINDEX_NAME]: item})
   }
 
   getItemMetadata(i: number): RowMetadata<Item> {
@@ -328,8 +325,7 @@ export class DataCube extends DataTable {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'DataCube'
+  static init_DataCube(): void {
     this.prototype.default_view = DataCubeView
 
     this.define<DataCube.Props>({
@@ -338,4 +334,3 @@ export class DataCube extends DataTable {
     })
   }
 }
-DataCube.initClass()

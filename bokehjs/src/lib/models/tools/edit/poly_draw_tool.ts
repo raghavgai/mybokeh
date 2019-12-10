@@ -1,5 +1,5 @@
 import {Keys} from "core/dom"
-import {UIEvent, GestureEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
+import {UIEvent, PanEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
@@ -80,7 +80,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   _show_vertices(): void {
-    if (!this.model.active ) { return }
+    if (!this.model.active) { return }
     const xs: number[] = []
     const ys: number[] = []
     for (let i=0; i<this.model.renderers.length; i++) {
@@ -157,14 +157,14 @@ export class PolyDrawToolView extends PolyToolView {
     }
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._select_event(ev, true, this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     if (this._basepoint == null || !this.model.drag)
       return
     const [bx, by] = this._basepoint
@@ -203,7 +203,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._pan(ev)
@@ -253,7 +253,7 @@ export class PolyDrawTool extends PolyTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PolyDrawTool(): void {
     this.prototype.default_view = PolyDrawToolView
 
     this.define<PolyDrawTool.Props>({
@@ -267,4 +267,3 @@ export class PolyDrawTool extends PolyTool {
   event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
   default_order = 3
 }
-PolyDrawTool.initClass()

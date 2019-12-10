@@ -20,7 +20,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_MercatorTickFormatter(): void {
     this.define<MercatorTickFormatter.Props>({
       dimension: [ p.LatLon ],
     })
@@ -38,7 +38,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
 
     if (this.dimension == "lon") {
       for (let i = 0; i < n; i++) {
-        const [lon,] = wgs84_mercator.inverse([ticks[i], opts.loc])
+        const [lon] = wgs84_mercator.inverse([ticks[i], opts.loc])
         proj_ticks[i] = lon
       }
     } else {
@@ -51,4 +51,3 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     return super.doFormat(proj_ticks, opts)
   }
 }
-MercatorTickFormatter.initClass()

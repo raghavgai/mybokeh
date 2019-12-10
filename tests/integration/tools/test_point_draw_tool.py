@@ -9,8 +9,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -20,13 +18,20 @@ import pytest ; pytest
 # Standard library imports
 import time
 
-# External imports
-
 # Bokeh imports
-from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Circle, PointDrawTool, Div
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
+from bokeh.layouts import column
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    Div,
+    Plot,
+    PointDrawTool,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

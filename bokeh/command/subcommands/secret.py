@@ -26,22 +26,17 @@ the ``BOKEH_SECRET_KEY`` environment variable.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from bokeh.util.session_id import generate_secret_key
 
+# Bokeh imports
 from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------

@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,10 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import codecs
-
-# External imports
-
-# Bokeh imports
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -74,6 +68,7 @@ class ServerConnection(object):
     def send_patch_document(self, event):
         """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
         msg = self.protocol.create('PATCH-DOC', [event])
+        # yes, *return* the awaitable, it will be awaited when pending writes are processed
         return self._socket.send_message(msg)
 
     def send_ping(self):

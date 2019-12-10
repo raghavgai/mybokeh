@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -21,20 +19,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 import io
+import os
 import warnings
 from os.path import abspath
 from tempfile import mkstemp
 
 # External imports
-from six import raise_from, b
+from PIL import Image
 
 # Bokeh imports
 from ..embed import file_html
-from ..resources import INLINE
-from ..util.dependencies import import_required
-from ..util.string import decode_utf8
+from ..resources import INLINE_LEGACY
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
@@ -165,13 +161,13 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
 
     return filenames
 
+# this is part of the API for this module
+from .webdriver import terminate_webdriver ; terminate_webdriver
+from .webdriver import webdriver_control ; webdriver_control
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-# this is part of the API for this module
-from .webdriver import webdriver_control
-from .webdriver import terminate_webdriver # for back compat
 
 def create_webdriver():
     ''' Create a new webdriver.
@@ -205,14 +201,10 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    Image = import_required('PIL.Image',
-                            'To use bokeh.io.export_png you need pillow ' +
-                            '("conda install pillow" or "pip install pillow")')
-
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(decode_utf8(html))
+            file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
@@ -239,8 +231,8 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
     '''
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
-        with io.open(tmp.path, mode="wb") as file:
-            file.write(b(html))
+        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+            file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
@@ -252,7 +244,7 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
 
     return svgs
 
-def get_layout_html(obj, resources=INLINE, **kwargs):
+def get_layout_html(obj, resources=INLINE_LEGACY, **kwargs):
     '''
 
     '''
@@ -284,18 +276,17 @@ def wait_until_render_complete(driver, timeout):
     '''
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
-    from selenium.webdriver import Firefox
 
     def is_bokeh_loaded(driver):
         return driver.execute_script('''
-            const b = window.Bokeh;
-            return b && b.documents && b.documents.length > 0;
+            return typeof Bokeh !== "undefined" && Bokeh.documents != null && Bokeh.documents.length != 0
         ''')
 
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
-        raise_from(RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.'), e)
+        _log_console(driver)
+        raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
 
     driver.execute_script(_WAIT_SCRIPT)
 
@@ -309,18 +300,20 @@ def wait_until_render_complete(driver, timeout):
                     "a 'bokeh:idle' event to signify that the layout has rendered. "
                     "Something may have gone wrong.")
     finally:
-        # Firefox webdriver does not currently support logs
-        if not isinstance(driver, Firefox):
-            browser_logs = driver.get_log('browser')
-            messages = [ l.get("message") for l in browser_logs if l.get('level') in ['WARNING', 'ERROR', 'SEVERE'] ]
-            if len(messages) > 0:
-                log.warning("There were browser warnings and/or errors that may have affected your export")
-                for message in messages:
-                    log.warning(message)
+        _log_console(driver)
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _log_console(driver):
+    levels = {'WARNING', 'ERROR', 'SEVERE'}
+    logs = driver.get_log('browser')
+    messages = [ log.get("message") for log in logs if log.get('level') in levels ]
+    if len(messages) > 0:
+        log.warning("There were browser warnings and/or errors that may have affected your export")
+        for message in messages:
+            log.warning(message)
 
 _BOUNDING_RECT_SCRIPT = """
 return document.getElementsByClassName('bk-root')[0].children[0].getBoundingClientRect()

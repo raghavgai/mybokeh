@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -24,14 +22,11 @@ log = logging.getLogger(__name__)
 import math
 from collections import namedtuple
 
-# External imports
-from six import string_types
-
 # Bokeh imports
 from .core.enums import Location
-from .models.tools import ProxyToolbar, ToolbarBox
+from .models.layouts import Box, Column, GridBox, LayoutDOM, Row, Spacer, WidgetBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Box, Row, Column, GridBox, Spacer, WidgetBox
+from .models.tools import ProxyToolbar, ToolbarBox
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -76,8 +71,8 @@ def row(*args, **kwargs):
 
     Examples:
 
-        >>> row([plot_1, plot_2])
-        >>> row(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
+        >>> row(plot1, plot2)
+        >>> row(children=[widgets, plot], sizing_mode='stretch_both')
     """
 
     sizing_mode = kwargs.pop('sizing_mode', None)
@@ -121,8 +116,8 @@ def column(*args, **kwargs):
 
     Examples:
 
-        >>> column([plot_1, plot_2])
-        >>> column(children=[widget_1, plot_1], sizing_mode='stretch_both')
+        >>> column(plot1, plot2)
+        >>> column(children=[widgets, plot], sizing_mode='stretch_both')
     """
 
     sizing_mode = kwargs.pop('sizing_mode', None)
@@ -486,7 +481,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                 return item
 
         layout = traverse(children, top_level=True)
-    elif isinstance(children, string_types):
+    elif isinstance(children, str):
         raise NotImplementedError
     else:
         raise ValueError("expected a list, string or model")

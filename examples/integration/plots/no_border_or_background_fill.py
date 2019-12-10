@@ -1,7 +1,5 @@
-from __future__ import absolute_import
-
 from bokeh.io import save
-from bokeh.models import Plot, Range1d, Circle, LinearAxis
+from bokeh.models import Circle, LinearAxis, Plot, Range1d
 
 template ="""
 {% block preamble %}

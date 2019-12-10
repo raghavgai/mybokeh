@@ -11,25 +11,29 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, ColorHex
-
+from ...core.properties import (
+    ColorHex,
+    Date,
+    Dict,
+    Either,
+    Float,
+    Instance,
+    Int,
+    List,
+    PositiveInt,
+    String,
+    Tuple,
+)
 from ..callbacks import Callback
-
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -186,6 +190,10 @@ class AutocompleteInput(TextInput):
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
     user upon typing the beginning of a desired value.
+    """)
+
+    min_characters = PositiveInt(default=2, help="""
+    The number of characters a user must type before completions are presented.
     """)
 
 

@@ -11,10 +11,7 @@ a Bokeh |Document|.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -25,20 +22,13 @@ log = logging.getLogger(__name__)
 from json import loads
 from operator import itemgetter
 
-# External imports
-from six import iteritems, string_types
-
 # Bokeh imports
+from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
 from .core.properties import Any, Dict, Instance, List, String
-from .core.has_props import HasProps, MetaHasProps
-from .core.query import find
-
 from .events import Event
 from .themes import default as default_theme
-
-from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
-from .util.future import with_metaclass
+from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from .util.serialization import make_id
 
 #-----------------------------------------------------------------------------
@@ -143,13 +133,13 @@ def get_class(view_model_name):
 
     '''
 
-    # in order to look up from the model catalog that MetaModel maintains, it
+    # in order to look up from the model catalog that Model maintains, it
     # has to be creates first. These imports ensure that all built-in Bokeh
     # models are represented in the catalog.
     from . import models; models
     from .plotting import Figure; Figure
 
-    d = MetaModel.model_class_reverse_map
+    d = Model.model_class_reverse_map
     if view_model_name in d:
         return d[view_model_name]
     else:
@@ -158,102 +148,6 @@ def get_class(view_model_name):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class MetaModel(MetaHasProps):
-    ''' Specialize the construction of |Model| classes.
-
-    This class is a `metaclass`_ for |Model| that is responsible for
-    automatically cataloging all Bokeh models that get defined, so that the
-    serialization machinery between Bokeh and BokehJS can function properly.
-
-    .. note::
-        It is worth pointing out explicitly that this relies on the rules
-        for Metaclass inheritance in Python.
-
-    Bokeh works by replicating Python model objects (e.g. plots, ranges,
-    data sources, which are all |HasProps| subclasses) into BokehJS. In the
-    case of using a Bokeh server, the Bokeh model objects can also be
-    synchronized bidirectionally. This is accomplished by serializing the
-    models to and from a JSON format, that includes the name of the model type
-    as part of the payload, as well as a unique ID, and all the attributes:
-
-    .. code-block:: javascript
-
-        {
-            type: "Plot",
-            id: 100032,
-            attributes: { ... }
-        }
-
-    Typically the type name is inferred automatically from the Python class
-    name, and is set as the ``__view_model__`` class attribute on the Model
-    class that is create. But it is also possible to override this value
-    explicitly:
-
-    .. code-block:: python
-
-        class Foo(Model): pass
-
-        class Bar(Model):
-            __view_model__ == "Quux"
-
-    This metaclass will raise an error if two Bokeh models are created that
-    attempt to have the same view model name. The only exception made is if
-    one of the models has a custom ``__implementation__`` in its class
-    definition.
-
-    This metaclass also handles subtype relationships between Bokeh models.
-    Occasionally it may be necessary for multiple class types on the Python
-    side to resolve to the same type on the BokehJS side. This is called
-    subtyping, and is expressed through a ``__subtype__`` class attribute on
-    a model:
-
-    .. code-block:: python
-
-        class Foo(Model): pass
-
-        class Bar(Foo):
-            __view_model__ = "Foo"
-            __subtype__ = "Bar"
-
-    In this case, python instances of ``Foo`` and ``Bar`` will both resolve to
-    ``Foo`` models in BokehJS. In the context of a Bokeh server application,
-    the original python types will be faithfully round-tripped. (Without the
-    ``__subtype__`` specified, the above code would raise an error due to
-    duplicate view model names.)
-
-    .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses
-
-    '''
-
-    model_class_reverse_map = {}
-
-    def __new__(meta_cls, class_name, bases, class_dict):
-        '''
-
-        Raises:
-            Warning
-
-        '''
-
-        # use an explicitly provided view model name if there is one
-        if "__view_model__" not in class_dict:
-            class_dict["__view_model__"] = class_name
-
-        # call the parent metaclass to create the new model type
-        newcls = super(MetaModel, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
-
-        # update the mapping of view model names to classes, checking for any duplicates
-        # and handling any subtype relationships or custom implementations
-        entry = class_dict.get("__subtype__", class_dict["__view_model__"])
-        if entry in MetaModel.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
-            raise Warning("Duplicate __view_model__ or __subtype__ declaration of '%s' for " \
-                          "class %s.  Previous definition: %s" % \
-                          (entry, class_name,
-                           MetaModel.model_class_reverse_map[entry]))
-        MetaModel.model_class_reverse_map[entry] = newcls
-
-        return newcls
 
 _HTML_REPR = """
 <script>
@@ -273,13 +167,45 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCallbackManager)):
+@abstract
+class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''
 
+    model_class_reverse_map = {}
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+
+        # use an explicitly provided view model name if there is one
+        if "__view_model__" not in cls.__dict__:
+            cls.__view_model__ = cls.__name__
+        if "__view_module__" not in cls.__dict__:
+            cls.__view_module__ = cls.__module__
+
+        module = cls.__view_module__
+        model = cls.__dict__.get("__subtype__", cls.__view_model__)
+        impl = cls.__dict__.get("__implementation__", None)
+
+        head = module.split(".")[0]
+        if head == "bokeh" or head == "__main__" or impl is not None:
+            qualified = model
+        else:
+            qualified = module + "." + model
+
+        cls.__qualified_model__ = qualified
+
+        # update the mapping of view model names to classes, checking for any duplicates
+        # and handling any subtype relationships or custom implementations
+        previous = cls.model_class_reverse_map.get(qualified, None)
+        if previous is not None and not hasattr(cls, "__implementation__"):
+            raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
+        cls.model_class_reverse_map[qualified] = cls
+
     def __new__(cls, *args, **kwargs):
-        obj =  super(Model, cls).__new__(cls)
+        obj =  super().__new__(cls)
         obj._id = kwargs.pop("id", make_id())
         obj._document = None
         obj._temp_document = None
@@ -292,7 +218,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         #
         # class Foo(object):
         #     def __new__(cls, *args, **kw):
-        #         obj = super(Foo, cls).__new__(cls)
+        #         obj = super().__new__(cls)
         #         obj.bar = kw.pop("bar", 111)
         #         print("__new__  :", id(kw), kw)
         #         return obj
@@ -304,7 +230,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         # __init__ : 4405522296 {'bar': 10}
         kwargs.pop("id", None)
 
-        super(Model, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         default_theme.apply_to_model(self)
 
     def __str__(self):
@@ -405,8 +331,11 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     @property
     def ref(self):
-        ''' A Bokeh protocol "reference" to this model, i.e. a dict of the
-        form:
+        return dict(id=self._id)
+
+    @property
+    def struct(self):
+        ''' A Bokeh protocol "structure" of this model, i.e. a dict of the form:
 
         .. code-block:: python
 
@@ -418,23 +347,25 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         Additionally there may be a `subtype` field if this model is a subtype.
 
         '''
+        this = {
+            'type': self.__qualified_model__,
+            'id'  : self.id,
+        }
+
         if "__subtype__" in self.__class__.__dict__:
-            return {
-                'type'    : self.__view_model__,
-                'subtype' : self.__subtype__,
-                'id'      : self.id,
-            }
-        else:
-            return {
-                'type' : self.__view_model__,
-                'id'   : self.id,
-            }
+            # XXX: remove __subtype__ and this garbage at 2.0
+            parts = this["type"].split(".")
+            parts[-1] = self.__view_model__
+            this["type"] = ".".join(parts)
+            this["subtype"] = self.__subtype__
+
+        return this
 
     # Public methods ----------------------------------------------------------
 
     def js_on_event(self, event, *callbacks):
 
-        if not isinstance(event, string_types) and issubclass(event, Event):
+        if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
         if event not in self.js_event_callbacks:
@@ -498,7 +429,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         if other_attr not in other.properties():
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
-        from bokeh.models.callbacks import CustomJS
+        from bokeh.models import CustomJS
         cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
 
         self.js_on_change(attr, cb)
@@ -531,7 +462,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
             raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
 
         # handle any CustomJS callbacks here
-        from bokeh.models.callbacks import CustomJS
+        from bokeh.models import CustomJS
         if not all(isinstance(x, CustomJS) for x in callbacks):
             raise ValueError("not all callback values are CustomJS instances")
 
@@ -575,7 +506,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         '''
         if attr not in self.properties():
             raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
-        super(Model, self).on_change(attr, *callbacks)
+        super().on_change(attr, *callbacks)
 
     def references(self):
         ''' Returns all ``Models`` that this object has references to.
@@ -594,6 +525,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
             seq[Model]
 
         '''
+        from .core.query import find
         return find(self.references(), selector)
 
     def select_one(self, selector):
@@ -701,7 +633,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint=hint, setter=setter)
+        super().trigger(attr, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc):
         ''' Attach a model to a Bokeh |Document|.
@@ -718,8 +650,8 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     @staticmethod
     def _clear_extensions():
-        MetaModel.model_class_reverse_map = {
-            k:v for k,v in MetaModel.model_class_reverse_map.items()
+        Model.model_class_reverse_map = {
+            k: v for k, v in Model.model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
         }
 
@@ -852,7 +784,7 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         for item in obj:
             _visit_value_and_its_immediate_references(item, visitor)
     elif issubclass(typ, dict):
-        for key, value in iteritems(obj):
+        for key, value in obj.items():
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
     elif issubclass(typ, HasProps):

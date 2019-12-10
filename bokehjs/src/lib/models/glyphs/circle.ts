@@ -115,48 +115,44 @@ export class CircleView extends XYGlyphView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    let dist, r2, sx0, sx1, sy0, sy1, x0, x1, y0, y1
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    // check radius first
-    if ((this._radius != null) && (this.model.properties.radius.units == "data")) {
+    let x0, x1, y0, y1
+    if (this._radius != null && this.model.properties.radius.units == "data") {
       x0 = x - this.max_radius
       x1 = x + this.max_radius
 
       y0 = y - this.max_radius
       y1 = y + this.max_radius
-
     } else {
-      sx0 = sx - this.max_size
-      sx1 = sx + this.max_size
+      const sx0 = sx - this.max_size
+      const sx1 = sx + this.max_size
       ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-      ;[x0, x1] = [Math.min(x0, x1), Math.max(x0, x1)]
 
-      sy0 = sy - this.max_size
-      sy1 = sy + this.max_size
+      const sy0 = sy - this.max_size
+      const sy1 = sy + this.max_size
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-      ;[y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
     }
 
     const candidates = this.index.indices({x0, x1, y0, y1})
 
     const hits: [number, number][] = []
-    if ((this._radius != null) && (this.model.properties.radius.units == "data")) {
+    if (this._radius != null && this.model.properties.radius.units == "data") {
       for (const i of candidates) {
-        r2 = Math.pow(this.sradius[i], 2)
-        ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-        ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+        const r2 = Math.pow(this.sradius[i], 2)
+        const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
+        const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+        const dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2)
         if (dist <= r2) {
           hits.push([i, dist])
         }
       }
     } else {
       for (const i of candidates) {
-        r2 = Math.pow(this.sradius[i], 2)
-        dist = Math.pow(this.sx[i]-sx, 2) + Math.pow(this.sy[i]-sy, 2)
+        const r2 = Math.pow(this.sradius[i], 2)
+        const dist = Math.pow(this.sx[i] - sx, 2) + Math.pow(this.sy[i] - sy, 2)
         if (dist <= r2) {
           hits.push([i, dist])
         }
@@ -167,48 +163,48 @@ export class CircleView extends XYGlyphView {
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
-      const {sx, sy} = geometry
-      const bounds = this.bounds()
-      const result = hittest.create_empty_hit_test_result()
+    const {sx, sy} = geometry
+    const bounds = this.bounds()
+    const result = hittest.create_empty_hit_test_result()
 
-      let x0, x1, y0, y1
-      if (geometry.direction == 'h') {
-        // use circle bounds instead of current pointer y coordinates
-        let sx0, sx1
-        y0 = bounds.y0
-        y1 = bounds.y1
-        if (this._radius != null && this.model.properties.radius.units == "data") {
-          sx0 = sx - this.max_radius
-          sx1 = sx + this.max_radius
-          ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-        } else {
-          const ms = this.max_size/2
-          sx0 = sx - ms
-          sx1 = sx + ms
-          ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-        }
+    let x0, x1, y0, y1
+    if (geometry.direction == 'h') {
+      // use circle bounds instead of current pointer y coordinates
+      let sx0, sx1
+      y0 = bounds.y0
+      y1 = bounds.y1
+      if (this._radius != null && this.model.properties.radius.units == "data") {
+        sx0 = sx - this.max_radius
+        sx1 = sx + this.max_radius
+        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
       } else {
-        // use circle bounds instead of current pointer x coordinates
-        let sy0, sy1
-        x0 = bounds.x0
-        x1 = bounds.x1
-        if (this._radius != null && this.model.properties.radius.units == "data") {
-          sy0 = sy - this.max_radius
-          sy1 = sy + this.max_radius
-          ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-        } else {
-          const ms = this.max_size/2
-          sy0 = sy - ms
-          sy1 = sy + ms
-          ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-        }
+        const ms = this.max_size/2
+        sx0 = sx - ms
+        sx1 = sx + ms
+        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
       }
-
-      const hits = this.index.indices({x0, x1, y0, y1})
-
-      result.indices = hits
-      return result
+    } else {
+      // use circle bounds instead of current pointer x coordinates
+      let sy0, sy1
+      x0 = bounds.x0
+      x1 = bounds.x1
+      if (this._radius != null && this.model.properties.radius.units == "data") {
+        sy0 = sy - this.max_radius
+        sy1 = sy + this.max_radius
+        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      } else {
+        const ms = this.max_size/2
+        sy0 = sy - ms
+        sy1 = sy + ms
+        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      }
     }
+
+    const hits = this.index.indices({x0, x1, y0, y1})
+
+    result.indices = hits
+    return result
+  }
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
@@ -279,7 +275,7 @@ export class Circle extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Circle(): void {
     this.prototype.default_view = CircleView
 
     this.mixins(['line', 'fill'])
@@ -296,4 +292,3 @@ export class Circle extends XYGlyph {
     this.properties.radius.optional = true
   }
 }
-Circle.initClass()

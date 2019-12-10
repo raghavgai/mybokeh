@@ -8,9 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -20,16 +18,27 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import warnings
 
-# External imports
-
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, PandasDataFrame, PandasGroupBy, Seq, String
+from ..core.properties import (
+    JSON,
+    Any,
+    Bool,
+    ColumnData,
+    Dict,
+    Enum,
+    Instance,
+    Int,
+    List,
+    PandasDataFrame,
+    PandasGroupBy,
+    Seq,
+    String,
+)
 from ..model import Model
 from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
-
 from .callbacks import Callback, CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
@@ -41,14 +50,14 @@ pd = import_optional('pandas')
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'ServerSentDataSource',
     'AjaxDataSource',
     'CDSView',
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
     'GeoJSONDataSource',
-    'RemoteSource',
+    'ServerSentDataSource',
+    'WebSource',
 )
 
 #-----------------------------------------------------------------------------
@@ -61,7 +70,7 @@ class DataSource(Model):
 
     '''
 
-    selected = Instance(Selection, default=lambda: Selection(), help="""
+    selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
     A Selection that indicates selected indices on this ``DataSource``.
     """)
 
@@ -189,7 +198,7 @@ class ColumnDataSource(ColumnarDataSource):
                 raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
-        super(ColumnDataSource, self).__init__(**kw)
+        super().__init__(**kw)
         self.data.update(raw_data)
 
     @property
@@ -231,7 +240,7 @@ class ColumnDataSource(ColumnarDataSource):
             _df.index = pd.Index(_df.index.values, name=index_name)
         _df.reset_index(inplace=True)
 
-        tmp_data = {c: v.values for c, v in _df.iteritems()}
+        tmp_data = {c: v.values for c, v in _df.items()}
 
         new_data = {}
         for k, v in tmp_data.items():
@@ -474,7 +483,7 @@ class ColumnDataSource(ColumnarDataSource):
             newkeys = set(_df.columns)
             index_name = ColumnDataSource._df_index_name(_df)
             newkeys.add(index_name)
-            new_data = dict(_df.iteritems())
+            new_data = dict(_df.items())
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
@@ -742,27 +751,13 @@ class WebSource(ColumnDataSource):
     A URL to to fetch data from.
     """)
 
-@abstract
-class RemoteSource(WebSource):
-    ''' Base class for remote column data sources that can update from data
-    URLs at prescribed time intervals.
-
-    .. note::
-        This base class is typically not useful to instantiate on its own.
-
-    '''
-
-    polling_interval = Int(help="""
-    A polling interval (in milliseconds) for updating data source.
-    """)
-
 class ServerSentDataSource(WebSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
 
     '''
 
-class AjaxDataSource(RemoteSource):
+class AjaxDataSource(WebSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 
@@ -785,9 +780,17 @@ class AjaxDataSource(RemoteSource):
     callback can be provided to convert the REST response into Bokeh format,
     via the ``adapter`` property of this data source.
 
+    Initial data can be set by specifying the ``data`` property directly.
+    This is necessary when used in conjunction with a ``FactorRange``, even
+    if the columns in `data`` are empty.
+
     A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 
     '''
+
+    polling_interval = Int(help="""
+    A polling interval (in milliseconds) for updating data source.
+    """)
 
     method = Enum('POST', 'GET', help="""
     Specify the HTTP method to use for the Ajax request (GET or POST)

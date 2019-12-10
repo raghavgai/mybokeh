@@ -20,21 +20,23 @@ export class Stack extends Expression {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Stack(): void {
     this.define<Stack.Props>({
       fields: [ p.Array, [] ],
     })
   }
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
-    const result = new Float64Array(source.get_length() || 0)
+    const n = source.get_length() ?? 0
+    const result = new Float64Array(n)
     for (const f of this.fields) {
-      for (let i = 0; i < source.data[f].length; i++) {
-        const x = source.data[f][i]
-        result[i] += x
+      const column = source.data[f]
+      if (column != null) {
+        for (let i = 0, k = Math.min(n, column.length); i < k; i++) {
+          result[i] += column[i]
+        }
       }
     }
     return result
   }
 }
-Stack.initClass()

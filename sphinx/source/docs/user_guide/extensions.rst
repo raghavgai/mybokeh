@@ -74,12 +74,6 @@ Below is an annotated TypeScript implementation for ``Custom`` and its
 final BokehJS scripts. We will see how to connect this code to custom
 extensions in the next section.
 
-.. note::
-    BokehJS was originally written in `CoffeeScript`_, but was ported
-    to `TypeScript`_. Accordingly, the guidance here is presented in TypeScript.
-    However, custom extensions can be written in CoffeeScript or pure JavaScript
-    as well.
-
 .. code-block:: typescript
 
     import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
@@ -127,7 +121,7 @@ extensions in the next section.
       // typos, which would prohibit serialization/deserialization of this model.
       static __name__ = "Surface3d"
 
-      static initClass(): void {
+      static init_Custom(): void {
         // If there is an associated view, this is typically boilerplate.
         this.prototype.default_view = CustomView
 
@@ -142,7 +136,6 @@ extensions in the next section.
         })
       }
     }
-    Custom.initClass()
 
 .. _userguide_extensions_structure_putting_together:
 
@@ -153,9 +146,8 @@ For built-in Bokeh models, the implementation in BokehJS is automatically
 matched with the corresponding Python model by the build process. In order
 connect JavaScript implementations to Python models, one additional step
 is needed. The Python class should have have a class attribute called
-``__implementation__`` whose value is the TypeScript (or JavaScript or
-CoffeeScript) code that the defines the client-side model as well as any
-optional views.
+``__implementation__`` whose value is the TypeScript (or JavaScript) code
+that the defines the client-side model as well as any optional views.
 
 Assuming the TypeScript code above was saved in a file ``custom.ts``,
 then the complete Python class might look like:
@@ -203,21 +195,19 @@ Specifying Implementation Languages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the value of ``__implementation__`` is a single line that ends in one of
-the know extensions ``.coffee``, ``.js``, or ``.ts`` then the it is interpreted
-as a filename. The corresponding file is opened and its contents are compiled
-appropriately according to the file extension.
+the know extensions ``.js``, or ``.ts`` then the it is interpretedas a filename.
+The corresponding file is opened and its contents are compiled appropriately
+according to the file extension.
 
 Otherwise, if the implementation is inline in the class, the language for the
-source code may be explicitly provided by using the classes ``CoffeeScript``,
-``JavaScript``, or ``TypeScript``, e.g.
+source code may be explicitly provided by using the classes ``JavaScript``, or
+``TypeScript``, e.g.
 
 .. code-block:: python
 
     class Custom(Model):
 
         __implementation__ = JavaScript(" <JS code here> ")
-
-Otherwise, if a plain string is given, it is assumed to be ``CoffeeScript``.
 
 .. _userguide_extensions_supplying_external_resources:
 
@@ -275,10 +265,6 @@ creating a custom extensions. However, creating extensions is a somewhat
 advanced topic. In many cases, it will be required to study the source code
 of the base classes in :bokeh-tree:`bokehjs/src/lib/models`.
 
-For any questions that remain, please contact any of the sources in
-:ref:`userguide_info`.Collaborating with the community will help make additions
-and improvements to this section for future users.
-
 .. toctree::
 
     extensions_gallery/ticking
@@ -304,6 +290,29 @@ and improvements to this section for future users.
 :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
 
-.. _CoffeeScript: http://coffeescript.org
 .. _KaTeX: https://khan.github.io/KaTeX/
 .. _TypeScript: https://www.typescriptlang.org/
+
+.. _userguide_extensions_prebuilt:
+
+Pre-built extensions
+--------------------
+
+So far we covered simple, typically inline extensions. Those are great for
+adhoc additions to bokeh, but serious development like this gets pretty
+tedious very quickly. For example, writing extension's TypeScript or
+JavaScript files in an IDE doesn't allow to take full advantage of such
+IDE's capabilities, due to implicit nature of certain configuration files
+like ``package.json`` or ``tsconfig.json``. This can be fixed by using
+another approach to bokeh extensions, which are pre-built extensions.
+
+To create a pre-built extension one can use ``bokeh init`` command, which
+creates all the necessary files, including ``bokeh.ext.json``, ``package.json``
+and ``tsconfig.json``, and possibly other. Additionally using ``bokeh init
+--interactive`` allows to create and customize an extension step-by-step.
+Later such extension can be build with ``bokeh build`` command. This runs
+``npm install`` if necessary, compiles TypeScript files, transpiles JavaScript
+files, resolves modules and links them together in distributable bundles.
+Compilation products are cached for improved performance. If this causes
+issues, one can rebuild an extension from scratch by using ``bokeh build
+--rebuild`` command.

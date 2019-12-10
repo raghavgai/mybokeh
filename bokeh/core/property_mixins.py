@@ -51,25 +51,42 @@ different usage, for more information see the docs for |Include|.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
-from .enums import HatchPattern, HatchPatternAbbreviation, LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
+from .enums import (
+    FontStyle,
+    HatchPattern,
+    HatchPatternAbbreviation,
+    LineCap,
+    LineJoin,
+    TextAlign,
+    TextBaseline,
+)
 from .has_props import HasProps
 from .properties import (
-    Color, ColorSpec, DashPattern, Dict, Enum, FontSize, FontSizeSpec, HatchPatternSpec,
-    Include, Instance, Int, Float, NumberSpec, Percent, Size, String, value
+    Color,
+    ColorSpec,
+    DashPattern,
+    Dict,
+    Enum,
+    Float,
+    FontSize,
+    FontSizeSpec,
+    HatchPatternSpec,
+    Include,
+    Instance,
+    Int,
+    NumberSpec,
+    Percent,
+    Size,
+    String,
+    value,
 )
 
 #-----------------------------------------------------------------------------

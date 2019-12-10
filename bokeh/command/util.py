@@ -10,9 +10,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -26,12 +24,10 @@ import os
 import sys
 import warnings
 
-# External imports
-
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
-from bokeh.models.plots import Plot
+from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
+from bokeh.models import Plot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -71,7 +67,7 @@ call "bokeh serve" on the directory instead. For example:
 
     bokeh serve my_app_dir/
 
-If this is not the case, renaming main.py will supress this warning.
+If this is not the case, renaming main.py will suppress this warning.
 """
 
 def build_single_handler_application(path, argv=None):
@@ -161,7 +157,7 @@ def build_single_handler_applications(paths, argvs=None):
 
     '''
     applications = {}
-    argvs = {} or argvs
+    argvs = argvs or {}
 
     for path in paths:
         application = build_single_handler_application(path, argvs.get(path, []))

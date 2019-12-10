@@ -1,10 +1,8 @@
-import {InputWidget, InputWidgetView} from "./input_widget"
+import Pikaday from "pikaday"
 
+import {InputWidget, InputWidgetView} from "./input_widget"
 import {input} from "core/dom"
 import * as p from "core/properties"
-
-import * as Pikaday from "pikaday"
-
 import {bk_input} from "styles/widgets/inputs"
 import "styles/widgets/pikaday"
 
@@ -76,8 +74,12 @@ export class DatePickerView extends InputWidgetView {
   }
 
   _unlocal_date(date: Date): Date {
-    // this sucks but the date comes in as a UTC timestamp and pikaday uses Date's local
-    // timezone-converted representation. We want the date to be as given by the user
+    //Get the UTC offset (in minutes) of date (will be based on the timezone of the user's system).
+    //Then multiply to get the offset in ms.
+    //This way it can be used to recreate the user specified date, agnostic to their local systems's timezone.
+    const timeOffsetInMS = date.getTimezoneOffset() * 60000
+    date.setTime(date.getTime() - timeOffsetInMS)
+
     const datestr = date.toISOString().substr(0, 10)
     const tup = datestr.split('-')
     return new Date(Number(tup[0]), Number(tup[1])-1, Number(tup[2]))
@@ -112,7 +114,7 @@ export class DatePicker extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DatePicker(): void {
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>({
@@ -123,4 +125,3 @@ export class DatePicker extends InputWidget {
     })
   }
 }
-DatePicker.initClass()

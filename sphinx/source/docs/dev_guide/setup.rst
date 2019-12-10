@@ -140,7 +140,7 @@ command at your command prompt to install all the required packages:
 
         conda install $(python scripts/deps.py build run test).split() | where {$_}
 
-* Winows (DOS Command Prompt)
+* Windows (DOS Command Prompt)
 
     .. code-block:: sh
 
@@ -182,7 +182,7 @@ to install all of BokehJS JavaScript dependencies:
 
 .. code-block:: sh
 
-    npm install --no-save
+    npm ci
 
 This command will install the necessary packages into the ``node_modules``
 subdirectory.

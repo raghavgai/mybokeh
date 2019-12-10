@@ -16,7 +16,7 @@ Generating output for Bokeh plots requires coordinating several things:
 
 :class:`~bokeh.document.Document`
     Groups together Bokeh models that may be shared between plots (e.g.,
-    range or data source objects) into one common strucure.
+    range or data source objects) into one common structure.
 
 :class:`~bokeh.resources.Resources`
     Control how JavaScript and CSS for the client library BokehJS are
@@ -34,9 +34,7 @@ ensures their proper configuration in many common usage scenarios.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -45,9 +43,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-
-# External imports
-from six import string_types
 
 # Bokeh imports
 from ..document import Document
@@ -126,13 +121,13 @@ class State(object):
         defined by external notebook hooks that have been installed.
 
         '''
-        if notebook_type is None or not isinstance(notebook_type, string_types):
+        if notebook_type is None or not isinstance(notebook_type, str):
             raise ValueError("Notebook type must be a string")
         self._notebook_type = notebook_type.lower()
 
     # Public methods ----------------------------------------------------------
 
-    def output_file(self, filename, title="Bokeh Plot", mode="cdn", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", mode=None, root_dir=None):
         ''' Configure output to a standalone HTML file.
 
         Calling ``output_file`` not clear the effects of any other calls to

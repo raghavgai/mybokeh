@@ -43,7 +43,7 @@ export class ImageBaseView extends XYGlyphView {
     return new SpatialIndex(points)
   }
 
-  _lrtb(i: number) : [number, number, number, number]{
+  _lrtb(i: number): [number, number, number, number]{
     const xr = this.renderer.xscale.source_range
     const x1 = this._x[i]
     const x2 = xr.is_reversed ? x1 - this._dw[i] : x1 + this._dw[i]
@@ -52,8 +52,8 @@ export class ImageBaseView extends XYGlyphView {
     const y1 = this._y[i]
     const y2 = yr.is_reversed ? y1 - this._dh[i] : y1 + this._dh[i]
 
-    const [l,r] = x1 < x2 ? [x1,x2] : [x2,x1]
-    const [b,t] = y1 < y2 ? [y1,y2] : [y2,y1]
+    const [l, r] = x1 < x2 ? [x1, x2] : [x2, x1]
+    const [b, t] = y1 < y2 ? [y1, y2] : [y2, y1]
     return [l, r, t, b]
   }
 
@@ -114,18 +114,22 @@ export class ImageBaseView extends XYGlyphView {
     }
   }
 
-  _image_index(index : number, x: number, y : number) : ImageIndex {
-    const [l,r,t,b] = this._lrtb(index)
+  _image_index(index: number, x: number, y: number): ImageIndex {
+    const [l, r, t, b] = this._lrtb(index)
     const width = this._width[index]
     const height = this._height[index]
     const dx = (r - l) / width
     const dy = (t - b) / height
-    const dim1 = Math.floor((x - l) / dx)
-    const dim2 = Math.floor((y - b) / dy)
+    let dim1 = Math.floor((x - l) / dx)
+    let dim2 = Math.floor((y - b) / dy)
+    if (this.renderer.xscale.source_range.is_reversed)
+      dim1 = width-dim1-1
+    if (this.renderer.yscale.source_range.is_reversed)
+      dim2 = height-dim2-1
     return {index, dim1, dim2, flat_index: dim2*width + dim1}
   }
 
-  _hit_point(geometry: PointGeometry) : Selection {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -135,7 +139,7 @@ export class ImageBaseView extends XYGlyphView {
     result.image_indices = []
     for (const index of candidates) {
       if ((sx != Infinity) && (sy != Infinity)) {
-        result.image_indices.push(this._image_index(index, x,y))
+        result.image_indices.push(this._image_index(index, x, y))
       }
     }
     return result
@@ -166,7 +170,7 @@ export class ImageBase extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ImageBase(): void {
     this.prototype.default_view = ImageBaseView
 
     this.define<ImageBase.Props>({
@@ -178,4 +182,3 @@ export class ImageBase extends XYGlyph {
     })
   }
 }
-ImageBase.initClass()

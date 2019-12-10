@@ -9,22 +9,27 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
 # External imports
+from flaky import flaky
 
 # Bokeh imports
+from bokeh._testing.util.selenium import RECORD, enter_text_in_element
 from bokeh.layouts import column
-from bokeh.models import Circle, ColumnDataSource, CustomAction, CustomJS, PasswordInput, Plot, Range1d
-from bokeh._testing.util.selenium import enter_text_in_element, RECORD
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    CustomAction,
+    CustomJS,
+    PasswordInput,
+    Plot,
+    Range1d,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -85,8 +90,7 @@ class Test_PasswordInput(object):
 
         assert page.has_no_console_errors()
 
-    # XXX (bev) always works locally but fails intermittently (often) on TravisCI
-    @pytest.mark.skip
+    @flaky(max_runs=5)
     def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 
@@ -101,6 +105,7 @@ class Test_PasswordInput(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=5)
     def test_server_on_change_round_trip(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 

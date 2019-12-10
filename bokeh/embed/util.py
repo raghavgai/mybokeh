@@ -11,9 +11,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -22,10 +20,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import OrderedDict
-from bokeh.util.future import collections_abc # goes away with py2
+from collections.abc import Sequence
 from contextlib import contextmanager
-
-# External imports
 
 # Bokeh imports
 from ..document.document import Document
@@ -118,7 +114,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     # Note: Comms handling relies on the fact that the new_doc returned
     # has models with the same IDs as they were started with
 
-    if not isinstance(objs, collections_abc.Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
+    if not isinstance(objs, Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
         raise ValueError("OutputDocumentFor expects a sequence of Models")
 
     def finish(): pass
@@ -263,7 +259,7 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
     if isinstance(models, (Model, Document)):
         models = [models]
 
-    if not (isinstance(models, collections_abc.Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
+    if not (isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
         raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
 
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:
@@ -325,12 +321,12 @@ callbacks (i.e. with on_change or on_event). This combination cannot work.
 Only JavaScript callbacks may be used with standalone output. For more
 information on JavaScript callbacks with Bokeh, see:
 
-    http://bokeh.pydata.org/en/latest/docs/user_guide/interaction/callbacks.html
+    https://docs.bokeh.org/en/latest/docs/user_guide/interaction/callbacks.html
 
 Alternatively, to use real Python callbacks, a Bokeh server application may
 be used. For more information on building and running Bokeh applications, see:
 
-    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
+    https://docs.bokeh.org/en/latest/docs/user_guide/server.html
 """
 
 def _create_temp_doc(models):

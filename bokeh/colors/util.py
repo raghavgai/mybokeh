@@ -11,22 +11,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-from six import string_types
-
 # Bokeh imports
-from ..util.future import with_metaclass
 from .rgb import RGB
 
 #-----------------------------------------------------------------------------
@@ -58,7 +50,7 @@ class _ColorGroupMeta(type):
 
     def __getitem__(self, v):
         from . import named
-        if isinstance(v, string_types):
+        if isinstance(v, str):
             if v in self._colors:
                 return getattr(named, v.lower())
             raise KeyError("Color group %r has no color %r" % (self.__class__.__name__, v))
@@ -76,13 +68,13 @@ class _ColorGroupMeta(type):
         from . import named
         if v != "_colors" and v in self._colors:
             return getattr(named, v.lower())
-        return super(_ColorGroupMeta, self).__getattr__(v)
+        return super().__getattr__(v)
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ColorGroup(with_metaclass(_ColorGroupMeta)):
+class ColorGroup(metaclass=_ColorGroupMeta):
     ''' Collect a group of named colors into an iterable, indexable group.
 
     '''
@@ -118,7 +110,7 @@ class NamedColor(RGB):
             self.__all__.append(name)
 
         self.name = name
-        super(NamedColor, self).__init__(r, g, b)
+        super().__init__(r, g, b)
 
     def to_css(self):
         '''

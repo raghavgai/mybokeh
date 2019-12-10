@@ -9,22 +9,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-
-# External imports
-
 # Bokeh imports
+from bokeh._testing.util.selenium import RECORD, ButtonWrapper, get_table_cell
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomJS, DataTable, TableColumn
-from bokeh._testing.util.selenium import ButtonWrapper, get_table_cell, RECORD
 
 #-----------------------------------------------------------------------------
 # Tests

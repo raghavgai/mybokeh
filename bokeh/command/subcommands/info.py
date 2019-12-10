@@ -42,9 +42,7 @@ This will produce output like what is shown below
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -54,14 +52,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 
-# External imports
-
 # Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
 from bokeh.util.compiler import nodejs_version, npmjs_version
 from bokeh.util.dependencies import import_optional
 
+# Bokeh imports
 from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------
@@ -93,7 +90,7 @@ class Info(Subcommand):
     #: name for this subcommand
     name = "info"
 
-    help = "print information about Bokeh and Bokeh server configuration"
+    help = "Print information about Bokeh and Bokeh server configuration"
 
     args = (
 
