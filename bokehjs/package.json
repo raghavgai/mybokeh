@@ -27,7 +27,7 @@
     "chai-as-promised": "^7.1.1",
     "del": "^5.1.0",
     "terser": "^4.4.0",
-    "mocha": "^6.2.2",
+    "mocha": "^10.2.0",
     "sinon": "^7.5.0",
     "yargs": "^15.0.2",
     "typescript": "^3.7.2",
